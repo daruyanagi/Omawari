@@ -1,0 +1,220 @@
+﻿<Window x:Class="Omawari.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Omawari.Views"
+        mc:Ignorable="d"
+        xmlns:converter="clr-namespace:Omawari.Converters"
+        xmlns:collection="clr-namespace:System.Collections;assembly=mscorlib"
+        Title="{Binding ViewModel.Title }" Height="480" Width="640">
+    <Window.Resources>
+
+        <collection:ArrayList x:Key="editMenu" x:Shared="False">
+            <MenuItem Command="{Binding ViewModel.AddScraperCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE109;" />
+                        Add
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem Command="{Binding ViewModel.EditScraperCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1C2;" />
+                        Edit
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem Command="{Binding ViewModel.RemoveScraperCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE107;" />
+                        Remove
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
+            <Separator></Separator>
+            <MenuItem Command="{Binding ViewModel.CheckAllScraperCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CD;" />
+                        Check All
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
+            <MenuItem Command="{Binding ViewModel.CheckSelectedScraperCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CC;" />
+                        Check Selected
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
+            <Separator />
+            <MenuItem Command="{Binding ViewModel.LogSelectedScraperCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE14C;" />
+                        Show Log
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
+        </collection:ArrayList>
+
+        <converter:ScrapingStatusToBrushConverter x:Key="ScrapingStatusToBrushConverter"/>
+        <converter:UtcToLocalTimeStringConverter x:Key="UtcToLocalTimeStringConverter"/>
+        <converter:TimeSpanToEasyReadStringConverter x:Key="TimeSpanToEasyReadStringConverter"/>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0">
+            <MenuItem Header="File" ItemsSource="{StaticResource ResourceKey=fileMenu}" />
+            <MenuItem Header="Edit" ItemsSource="{StaticResource ResourceKey=editMenu}" />
+            <MenuItem Header="Tool" ItemsSource="{StaticResource ResourceKey=toolMenu}" />
+            <MenuItem Header="Help" ItemsSource="{StaticResource ResourceKey=helpMenu}" />
+        </Menu>
+
+        <ToolBarTray Grid.Row="1">
+            <ToolBar>
+                <Button Command="{Binding ViewModel.StartCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE102;" />
+                        Start
+                    </TextBlock>
+                </Button>
+                <Button Command="{Binding ViewModel.StopCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE103;" />
+                        Pause
+                    </TextBlock>
+                </Button>
+                <Separator></Separator>
+                <Button Command="{Binding ViewModel.AddScraperCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE109;" />
+                        Add
+                    </TextBlock>
+                </Button>
+                <Button Command="{Binding ViewModel.EditScraperCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1C2;" />
+                        Edit
+                    </TextBlock>
+                </Button>
+                <Button Command="{Binding ViewModel.RemoveScraperCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE107;" />
+                        Remove
+                    </TextBlock>
+                </Button>
+                <Separator></Separator>
+                <Button Command="{Binding ViewModel.CheckAllScraperCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CD;" />
+                        Check All
+                    </TextBlock>
+                </Button>
+                <Button Command="{Binding ViewModel.CheckSelectedScraperCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CC;" />
+                        Check Selected
+                    </TextBlock>
+                </Button>
+                <Separator></Separator>
+                <Button Command="{Binding ViewModel.LogSelectedScraperCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE14C;" />
+                        Show Log
+                    </TextBlock>
+                </Button>
+                <Separator></Separator>
+                <Button Command="{Binding ViewModel.SettingsCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE115;" />
+                        Settings
+                    </TextBlock>
+                </Button>
+            </ToolBar>
+        </ToolBarTray>
+
+        <Grid Grid.Row="2">
+            <ListView ItemsSource="{Binding ViewModel.Items}"
+                      SelectedItem="{Binding ViewModel.SelectedItem, Mode=TwoWay}"
+                      MouseDoubleClick="ListView_MouseDoubleClick">
+                <ListView.ContextMenu>
+                    <ContextMenu ItemsSource="{StaticResource editMenu}" />
+                </ListView.ContextMenu>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Status" Width="75">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Status}"
+                                               Foreground="{Binding Status, Converter={StaticResource ScrapingStatusToBrushConverter}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200" />
+                        <GridViewColumn Header="Target" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock>
+                                        <Hyperlink NavigateUri="{Binding Target}" RequestNavigate="Hyperlink_RequestNavigate" >
+                                            <Run Text="{Binding Target}" />
+                                        </Hyperlink>
+                                    </TextBlock>   
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Selectors" DisplayMemberBinding="{Binding Selectors}" Width="100" />
+                        <GridViewColumn Header="Interval" DisplayMemberBinding="{Binding Interval}" Width="100" />
+                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="100" />
+
+                        <GridViewColumn Header="Last Status" DisplayMemberBinding="{Binding LastResult.Status}" Width="100" />
+                        <GridViewColumn Header="Last OuterHTML" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding LastResult.TextSingleLine}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Started At" Width="125">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding LastResult.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Completed At" DisplayMemberBinding="{Binding LastResult.CompletedAt}" Width="125">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding LastResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Elapsed" Width="125">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding LastResult.Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+
+        <StatusBar Grid.Row="3">
+            <StatusBarItem Content="{Binding ViewModel.StatusBarMessage}" />
+        </StatusBar>
+    </Grid>
+</Window>
