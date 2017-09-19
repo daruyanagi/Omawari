@@ -6,8 +6,14 @@
         xmlns:local="clr-namespace:Omawari.Views"
         xmlns:u="clr-namespace:Omawari.Utilities"
         mc:Ignorable="d"
-        Title="{Binding ViewModel.Title}" Height="480" Width="640">
-
+        Title="{Binding ViewModel.Title}" Height="480" Width="640"
+        xmlns:converter="clr-namespace:Omawari.Converters"
+        >
+    
+    <Window.Resources>
+        <converter:UtcToLocalTimeStringConverter x:Key="UtcToLocalTimeStringConverter"/>
+    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -59,7 +65,7 @@
                          SelectedItem="{Binding ViewModel.SelectedResult, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Label Content="{Binding StartedAt}" />
+                                <Label Content="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
@@ -69,7 +75,7 @@
                          SelectedItem="{Binding ViewModel.SelectedResult, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Label Content="{Binding StartedAt}" />
+                                <Label Content="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>

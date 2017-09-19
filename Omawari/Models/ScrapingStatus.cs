@@ -13,6 +13,5 @@ namespace Omawari.Models
         Succeeded,
         Failed,
         Updated,
-        Exception,
     }
 }

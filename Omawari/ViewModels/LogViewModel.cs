@@ -12,8 +12,6 @@ namespace Omawari.ViewModels
     {
         private List<ScrapingResult> results = null;
         private ScrapingResult result = null;
-        private List<ScrapingResult> groupedResults;
-        private string title;
         private Scraper scraper;
 
         private RelayCommand reloadCommand;
@@ -63,8 +61,7 @@ namespace Omawari.ViewModels
 
         public string Title
         {
-            get { return $"Log: {title}"; }
-            set { SetProperty(ref title, value); }
+            get { return $"Log: {Scraper.Name}"; }
         }
 
         public Scraper Scraper

@@ -33,6 +33,11 @@ namespace Omawari.Views
             ViewModel.Scraper = scraper;
         }
 
+        public LogWindow(Scraper scraper, ScrapingResult result) : this(scraper)
+        {
+            ViewModel.SelectedResult = result;
+        }
+
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
             Close();

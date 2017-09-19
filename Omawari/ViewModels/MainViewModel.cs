@@ -32,9 +32,9 @@ namespace Omawari.ViewModels
         private RelayCommand settingsCommand = null;
 
         private ScraperCollection items = App.ScraperCollection;
+        private ObservableCollection<Models.ScrapingResult> updateLog = App.UpdateLog;
         private Scraper selectedItem = null;
 
-        private string title = $"{App.Name} v{App.Version}";
         private string timerCommandLabel = "Start";
         private RelayCommand helpCommand;
 
@@ -201,13 +201,26 @@ namespace Omawari.ViewModels
 
         public string Title
         {
-            get { return title; }
+            get
+            {
+#if DEBUG
+                return $"{App.Name} v{App.Version} (DEBUG)";
+#else
+                return $"{App.Name} v{App.Version}";
+#endif
+            }
         }
 
         public ScraperCollection Items
         {
             get { return items; }
             set { SetProperty(ref items, value); }
+        }
+
+        public ObservableCollection<Models.ScrapingResult> UpdateLog
+        {
+            get { return updateLog; }
+            set { SetProperty(ref updateLog, value); }
         }
 
         public Scraper SelectedItem

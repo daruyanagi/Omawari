@@ -30,6 +30,19 @@ namespace Omawari.Utilities
             if (browser == null) return;
             string html = e.NewValue as string;
             if (html == null) return;
+            html = $@"
+<html>
+    <head>
+        <meta http-equiv='Content-Type' content='text/html;charset=UTF-8'>
+        <style>
+            ins.diffins {{ background-color: #cfc; text-decoration: none; }} 
+            del.diffdel {{ color: #999; background-color:#FEC8C8; }}
+        </style>
+    </head>
+    <body>
+        {html}
+    </body>
+</html>";
             browser.NavigateToString(html);
         }
     }

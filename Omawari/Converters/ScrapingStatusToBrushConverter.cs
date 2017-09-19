@@ -19,12 +19,13 @@ namespace Omawari.Converters
             
             switch (((ScrapingStatus)value))
             {
+                case ScrapingStatus.Pending: return Brushes.Gray;
                 case ScrapingStatus.Failed: return Brushes.Red;
-                case ScrapingStatus.Running: return Brushes.Gray;
+                case ScrapingStatus.Running: return Brushes.Blue;
                 case ScrapingStatus.Succeeded: return Brushes.Green;
-                default: break;
+                case ScrapingStatus.Updated: return Brushes.Orange;
+                default: return Brushes.Black;
             }
-            return Brushes.Black;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
