@@ -16,7 +16,7 @@ namespace Omawari.Converters
 
             var utc = (DateTime)value;
 
-            return utc.ToLocalTime();
+            return utc.Add(DateTime.Now - DateTime.UtcNow);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

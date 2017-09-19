@@ -9,8 +9,6 @@ var timeout = setTimeout(function () {
     page.stop();
 }, timeout);
 
-var started = Date.now();
-
 page.open(url, function (status) {
     var text = null;
     if (status === 'success') {
@@ -23,12 +21,10 @@ page.open(url, function (status) {
     var completed = Date.now();
     console.log(
         JSON.stringify({
-            url: url,
+            target: url,
             selector: selector,
             status: status,
             text: text,
-            startedAt: "\/Date(" + started + ")\/",
-            completedAt: "\/Date(" + completed + ")\/",
         })
     );
     phantom.exit();

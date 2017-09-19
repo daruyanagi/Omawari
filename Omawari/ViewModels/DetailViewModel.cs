@@ -40,6 +40,14 @@ namespace Omawari.ViewModels
 
                 return okCommand = new RelayCommand<System.Windows.Window>((window) =>
                 {
+                    if (Result?.Status != "success")
+                    {
+                        App.ShowCaution("Please test and pass it.");
+                        return;
+                    }
+
+                    if (string.IsNullOrEmpty(Scraper.Name)) Scraper.Name = $"{Scraper.Target} @ {Scraper.Selectors}";
+
                     var item = App.ScraperCollection.FirstOrDefault(_ => _.Id == Scraper.Id);
 
                     if (item == null)

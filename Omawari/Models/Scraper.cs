@@ -20,8 +20,9 @@ namespace Omawari.Models
         private ScrapingStatus status = ScrapingStatus.Pending;
         private Guid id = Guid.NewGuid();
         private string name = default(string);
-        private int interval = 3 * 60; // 分単位
+        private int interval = App.GlobalSettings.DefaultInterval; // 分単位
         private bool isDynamic = false;
+        private bool isEnabled = true;
 
         public Guid Id
         {
@@ -59,6 +60,12 @@ namespace Omawari.Models
             set { SetProperty(ref isDynamic, value); }
         }
 
+        public bool IsEnabled
+        {
+            get { return isEnabled; }
+            set { SetProperty(ref isEnabled, value); }
+        }
+
         [JsonIgnore]
         public ScrapingStatus Status
         {
@@ -67,7 +74,7 @@ namespace Omawari.Models
         }
 
         [JsonIgnore]
-        public string ScrapingResultPath
+        public string Location
         {
             get
             {
@@ -89,85 +96,93 @@ namespace Omawari.Models
             get
             {
                 return Directory
-                  .EnumerateFiles(ScrapingResultPath)
+                  .EnumerateFiles(Location)
                   .Select(_ => File.ReadAllText(_).Deserialize<ScrapingResult>())
-                  .OrderByDescending(_ => _.StartedAt)
+                  .OrderByDescending(_ => _.CompletedAt)
                   .ToList();
             }
         }
         
         public async Task CheckAsync()
         {
+            if (!IsEnabled) return;
+
             var result = await RunAsync();
+            var old = LastResult;
 
-            var root = Path.Combine(Utilities.EnvironmentHelper.GetAppFolderOnOneDrive(), Id.ToString());
-            Directory.CreateDirectory(root);
+            // スクレイピング結果の保存
+            File.WriteAllText(result.Location, result.Serialize());
 
-            var old = string.Empty;
-            var latest = Directory.EnumerateFiles(root).LastOrDefault(); // ちゃんと時系列順かなぁ？
-            if (latest != null) old = File.ReadAllText(latest).Deserialize<ScrapingResult>().Text;
-            if (!string.IsNullOrEmpty(old) && old != result.Text)
-            {
-                Status = ScrapingStatus.Updated;
-                App.ShowInformation($"{Name} is updated.");
-            }
-
-            var path = Path.Combine(root, DateTime.UtcNow.Ticks.ToString());
-            path = Path.ChangeExtension(path, ".json");
-
-            File.WriteAllText(path, result.Serialize());
-
+            // プロパティ更新。更新チェックの先にやっておかないと、App.Updated() がイヤんなことになる
             OnPropertyChanged(nameof(Results));
             OnPropertyChanged(nameof(LastResult));
+
+            // 更新（新規も含む）のチェック
+            if (old == null || old.Text != result.Text)
+            {
+                Status = ScrapingStatus.Updated;
+
+                App.Updated(this, result); // イベントにしたいものだ
+            }
         }
 
         public async Task<ScrapingResult> RunAsync()
         {
-            return IsDynamic
-                ? await RunDynamicAsync()
-                : await RunStaticAsync();
-        }
-
-        public async Task<ScrapingResult> RunStaticAsync()
-        {
             Status = ScrapingStatus.Running;
-
-            var result = new ScrapingResult();
+            var result = new ScrapingResult(this);
+            
             result.StartedAt = DateTime.UtcNow;
-            result.Url = Target.ToString();
+            result.Target = Target?.ToString();
             result.Selector = Selectors;
 
             try
             {
-                var doc = default(IHtmlDocument);
-                using (var client = new HttpClient())
-                using (var stream = await client.GetStreamAsync(Target))
-                {
-                    var parser = new HtmlParser();
-                    doc = await parser.ParseAsync(stream);
-                }
+                // スクレイピング処理のコア（時間がかかります！）
+                var (status, text) = IsDynamic
+                    ? await RunDynamicAsync()
+                    : await RunStaticAsync();
 
-                result.Status = "success";
-                result.Text = doc.QuerySelector(Selectors).OuterHtml;
-                Status = ScrapingStatus.Succeeded;
+                result.Status = status;
+                result.Text = text;
+                Status = status == "success"
+                    ? ScrapingStatus.Succeeded
+                    : ScrapingStatus.Failed;
             }
-            catch
+            catch (Exception e)
             {
-                result.Status = "fail";
-                Status = ScrapingStatus.Exception;
+                result.Status = "exception";
+                result.Text = e.Message;
+                Status = ScrapingStatus.Failed;
             }
 
             result.CompletedAt = DateTime.UtcNow;
+
             return result;
         }
 
-        public async Task<ScrapingResult> RunDynamicAsync()
+        public async Task<(string, string)> RunStaticAsync()
         {
-            Status = ScrapingStatus.Running;
-            
-            var result = default(ScrapingResult);
+            try
+            {
+                using (var client = new HttpClient())
+                using (var stream = await client.GetStreamAsync(Target))
+                {
+                    var doc = default(IHtmlDocument);
+                    var parser = new HtmlParser();
+                    doc = await parser.ParseAsync(stream);
+                    
+                    return ("success", doc.QuerySelector(Selectors).OuterHtml);
+                }
+            }
+            catch
+            {
+                return ("fail", string.Empty);
+            }
+        }
 
-            await Task.Factory.StartNew(() =>
+        public async Task<(string, string)> RunDynamicAsync()
+        {
+            return await Task.Factory.StartNew(new Func<(string, string)>(() =>
             {
                 try
                 { 
@@ -200,24 +215,20 @@ namespace Omawari.Models
                         process.BeginOutputReadLine();
                         process.WaitForExit();
 
-                        // エラー出力をちょん切る
+                        // エラー出力をちょん切る（もしかするともっといい方法があるのかもしれない）
                         var r = new System.Text.RegularExpressions.Regex("{.+}");
                         output = r.Match(output).Value;
 
-                        result = JsonConvert.DeserializeObject<ScrapingResult>(output);
-
-                        Status = result.Status == "success"
-                            ? ScrapingStatus.Succeeded
-                            : ScrapingStatus.Failed;
+                        // シンプルにしたいけど、処理を壊すのもめんどいので後回し
+                        var result = JsonConvert.DeserializeObject<ScrapingResult>(output);
+                        return (result.Status, result.Text);
                     }
                 }
                 catch
                 {
-                    Status = ScrapingStatus.Exception;
+                    return ("fail", string.Empty);
                 }
-            });
-            
-            return result;
+            }));
         }
 
         public Scraper Clone()

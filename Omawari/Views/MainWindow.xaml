@@ -72,7 +72,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -150,12 +152,23 @@
             <ListView ItemsSource="{Binding ViewModel.Items}"
                       SelectedItem="{Binding ViewModel.SelectedItem, Mode=TwoWay}"
                       MouseDoubleClick="ListView_MouseDoubleClick">
+                
                 <ListView.ContextMenu>
                     <ContextMenu ItemsSource="{StaticResource editMenu}" />
                 </ListView.ContextMenu>
+                
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Status" Width="75">
+
+                        <GridViewColumn Header="" Width="Auto" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsEnabled}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+
+                        <GridViewColumn Header="Status" Width="Auto">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Status}"
@@ -163,7 +176,10 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" Width="200" />
+                        
+                        <GridViewColumn Header="Name" Width="200" 
+                                        DisplayMemberBinding="{Binding Name}" />
+                        
                         <GridViewColumn Header="Target" Width="100">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
@@ -175,45 +191,63 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Selectors" DisplayMemberBinding="{Binding Selectors}" Width="100" />
-                        <GridViewColumn Header="Interval" DisplayMemberBinding="{Binding Interval}" Width="100" />
-                        <GridViewColumn Header="ID" DisplayMemberBinding="{Binding Id}" Width="100" />
+                        
+                        <GridViewColumn Header="Selectors" Width="100" 
+                                        DisplayMemberBinding="{Binding Selectors}" />
+                        
+                        <GridViewColumn Header="Interval" Width="100" 
+                                        DisplayMemberBinding="{Binding Interval}" />
+                        
+                        <GridViewColumn Header="ID" Width="100" 
+                                        DisplayMemberBinding="{Binding Id}" />
 
-                        <GridViewColumn Header="Last Status" DisplayMemberBinding="{Binding LastResult.Status}" Width="100" />
-                        <GridViewColumn Header="Last OuterHTML" Width="100">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding LastResult.TextSingleLine}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Started At" Width="125">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding LastResult.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Completed At" DisplayMemberBinding="{Binding LastResult.CompletedAt}" Width="125">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding LastResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Elapsed" Width="125">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding LastResult.Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                        <GridViewColumn Header="Last Status"  Width="100"
+                                        DisplayMemberBinding="{Binding LastResult.Status}" />
+                        <GridViewColumn Header="Last OuterHTML"  Width="100" 
+                                        DisplayMemberBinding="{Binding LastResult.TextSingleLine}"/>
+
+                        <GridViewColumn Header="Started At" Width="Auto"
+                                        DisplayMemberBinding="{Binding LastResult.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+
+                        <GridViewColumn Header="Completed At" Width="Auto"
+                                        DisplayMemberBinding="{Binding LastResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+
+                        <GridViewColumn Header="Elapsed" Width="100"
+                                        DisplayMemberBinding="{Binding LastResult.Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}" />
+
                     </GridView>
                 </ListView.View>
             </ListView>
         </Grid>
 
-        <StatusBar Grid.Row="3">
+        <GridSplitter Grid.Row="3" Height="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+
+        <ListView x:Name="listViewLog" 
+                  Grid.Row="4"
+                  ItemsSource="{Binding ViewModel.UpdateLog}"
+                  MouseDoubleClick="listViewLog_MouseDoubleClick">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Updated" Width="Auto"
+                                    DisplayMemberBinding="{Binding CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                    <GridViewColumn Header="Name" Width="Auto"
+                                    DisplayMemberBinding="{Binding Scraper.Name}" />
+                    <GridViewColumn Header="URL">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock>
+                                    <Hyperlink NavigateUri="{Binding Target}" RequestNavigate="Hyperlink_RequestNavigate" >
+                                        <Run Text="{Binding Target}" />
+                                    </Hyperlink>
+                                </TextBlock>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <StatusBar Grid.Row="5">
             <StatusBarItem Content="{Binding ViewModel.StatusBarMessage}" />
         </StatusBar>
     </Grid>

@@ -22,8 +22,11 @@ namespace Omawari
         [STAThread]
         public static void Main()
         {
+#if DEBUG
+            const string id = "{9ABF2DEC-1CA9-4A76-A2BE-C86AE811DA64}";
+#else
             const string id = "{B70D60F7-96A6-47EC-B2DA-D47D899A7861}";
-
+#endif
             using (var Semaphore = new Semaphore(1, 1, id, out bool created))
             {
                 if (!created) return;
@@ -40,9 +43,11 @@ namespace Omawari
 
         private static Forms.Timer Timer = new Forms.Timer();
         private static Forms.NotifyIcon NotifyIcon = new Forms.NotifyIcon();
-        
+
         public static Models.ScraperCollection ScraperCollection { get; private set; }
+        public static AsyncObservableCollection<Models.ScrapingResult> UpdateLog { get; private set; }
         public static Models.GlobalSettings GlobalSettings { get; set; }
+        public static int WorkingMinutes { get; set; } = 0;
         public static string DataFolder { get; set; }
         public static string SettingsPath { get { return Path.Combine(DataFolder, "settings.json"); } }
         public static string ScrapersPath { get { return Path.Combine(DataFolder, "scrapers.json"); } }
@@ -69,8 +74,10 @@ namespace Omawari
 
             GlobalSettings = Models.GlobalSettings.Load(SettingsPath);
             ScraperCollection = Models.ScraperCollection.Load(ScrapersPath);
+            UpdateLog = new AsyncObservableCollection<Models.ScrapingResult>();
 
             // 通知アイコンの用意
+            NotifyIcon.Text = App.Name;
             NotifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(App.Assembly.Location);
             NotifyIcon.Visible = true;
             NotifyIcon.Click += (s, a) => { if (MainWindow.IsVisible) MainWindow.Hide(); else MainWindow.Show(); };
@@ -81,7 +88,7 @@ namespace Omawari
             });
 
             Timer.Interval = 60 * 1000;
-            Timer.Tick += (s, a) => { CheckAll(); };
+            Timer.Tick += (s, a) => { CheckAll(); WorkingMinutes++; };
             if (GlobalSettings.AutoStart) Start();
         }
 
@@ -90,6 +97,13 @@ namespace Omawari
             NotifyIcon.Visible = false;
             ScraperCollection.Save();
             GlobalSettings.Save();
+        }
+
+        public static void Updated(Models.Scraper scraper, Models.ScrapingResult result)
+        {
+            ShowInformation($"{scraper.Name} is updated.");
+
+            UpdateLog.Insert(0, result);
         }
 
         public static void CheckAll()
@@ -105,7 +119,7 @@ namespace Omawari
                 {
                     await item.CheckAsync();
                 }
-                if (item.LastResult.CompletedAt + TimeSpan.FromMinutes(10) < now) // 10分経ったらペンディングにしとくかな
+                if (item.LastResult.CompletedAt + TimeSpan.FromMinutes(GlobalSettings.WaitTimeForChangingToPending) < now) // 10分経ったらペンディングにしとくかな
                 {
                     item.Status = Models.ScrapingStatus.Pending;
                 }

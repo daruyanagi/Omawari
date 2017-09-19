@@ -48,5 +48,12 @@ namespace Omawari.Views
         {
             ViewModel.LogSelectedScraperCommand.Execute(null);
         }
+        
+        private void listViewLog_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var result = listViewLog.SelectedItem as Models.ScrapingResult;
+            var window = new Views.LogWindow(result.Scraper, result);
+            window.ShowDialog();
+        }
     }
 }
