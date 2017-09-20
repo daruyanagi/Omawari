@@ -201,14 +201,7 @@ namespace Omawari.ViewModels
 
         public string Title
         {
-            get
-            {
-#if DEBUG
-                return $"{App.Name} v{App.Version} (DEBUG)";
-#else
-                return $"{App.Name} v{App.Version}";
-#endif
-            }
+            get { return $"{App.Name} v{App.Version}"; }
         }
 
         public ScraperCollection Items

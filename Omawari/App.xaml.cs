@@ -38,7 +38,11 @@ namespace Omawari
         }
 
         public static readonly Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
+#if DEBUG
+        public static readonly string Name = $"{Assembly.GetName().Name} (DEBUG)";
+#else
         public static readonly string Name = Assembly.GetName().Name;
+#endif
         public static readonly Version Version = Assembly.GetName().Version;
 
         private static Forms.Timer Timer = new Forms.Timer();
