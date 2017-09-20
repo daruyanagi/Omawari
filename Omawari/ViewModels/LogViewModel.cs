@@ -10,11 +10,9 @@ namespace Omawari.ViewModels
 {
     public class LogViewModel : BindableBase
     {
-        private List<ScrapingResult> results = null;
         private ScrapingResult result = null;
         private Scraper scraper;
-
-        private RelayCommand reloadCommand;
+        
         private RelayCommand manualCheckCommand;
         private RelayCommand settingsCommand;
 
@@ -27,21 +25,6 @@ namespace Omawari.ViewModels
                 return manualCheckCommand = new RelayCommand(async () =>
                 {
                     await Scraper.CheckAsync();
-                    ReloadCommand.Execute(null);
-                });
-            }
-        }
-
-        public RelayCommand ReloadCommand
-        {
-            get
-            {
-                if (reloadCommand != null) return reloadCommand;
-
-                return reloadCommand = new RelayCommand(() =>
-                {
-                    OnPropertyChanged(nameof(Results));
-                    OnPropertyChanged(nameof(GroupedResults));
                 });
             }
         }
@@ -71,22 +54,7 @@ namespace Omawari.ViewModels
             {
                 SetProperty(ref scraper, value);
                 OnPropertyChanged(nameof(Title));
-                ReloadCommand.Execute(null);
             }
-        }
-
-        public List<ScrapingResult> Results
-        {
-            get { return scraper.Results; }
-            set
-            {
-                SetProperty(ref results, value);
-            }
-        }
-
-        public List<ScrapingResult> GroupedResults
-        {
-            get { return Results.GroupBy(_ => _.Text).Select(_ => _.First()).OrderByDescending(_ => _.CompletedAt).ToList(); }
         }
 
         public ScrapingResult SelectedResult
@@ -105,8 +73,8 @@ namespace Omawari.ViewModels
             {
                 try
                 {
-                    var index = GroupedResults.IndexOf(SelectedResult) + 1;
-                    return SelectedResult.Diff(GroupedResults[index]);
+                    var index = Scraper.UpdateResults.IndexOf(SelectedResult) + 1;
+                    return SelectedResult.Diff(Scraper.UpdateResults[index]);
                 }
                 catch
                 {

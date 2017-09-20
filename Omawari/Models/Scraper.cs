@@ -87,11 +87,17 @@ namespace Omawari.Models
         [JsonIgnore]
         public ScrapingResult LastResult
         {
-            get { return Results.FirstOrDefault(); }
+            get { return AllResults.FirstOrDefault(); }
         }
 
         [JsonIgnore]
-        public List<ScrapingResult> Results
+        public ScrapingResult LastUpdateResult
+        {
+            get { return UpdateResults.FirstOrDefault(); }
+        }
+
+        [JsonIgnore]
+        public List<ScrapingResult> AllResults
         {
             get
             {
@@ -102,7 +108,18 @@ namespace Omawari.Models
                   .ToList();
             }
         }
-        
+
+        [JsonIgnore]
+        public List<ScrapingResult> UpdateResults
+        {
+            get
+            {
+                return AllResults.GroupBy(_ => _.Text)
+                    .Select(_ => _.OrderByDescending(__ => __.CompletedAt).Last())
+                    .ToList();
+            }
+        }
+
         public async Task CheckAsync()
         {
             if (!IsEnabled) return;
@@ -114,8 +131,10 @@ namespace Omawari.Models
             File.WriteAllText(result.Location, result.Serialize());
 
             // プロパティ更新。更新チェックの先にやっておかないと、App.Updated() がイヤんなことになる
-            OnPropertyChanged(nameof(Results));
+            OnPropertyChanged(nameof(AllResults));
+            OnPropertyChanged(nameof(UpdateResults));
             OnPropertyChanged(nameof(LastResult));
+            OnPropertyChanged(nameof(LastUpdateResult));
 
             // 更新（新規も含む）のチェック
             if (old == null || old.Text != result.Text)

@@ -201,10 +201,8 @@
                         <GridViewColumn Header="ID" Width="100" 
                                         DisplayMemberBinding="{Binding Id}" />
 
-                        <GridViewColumn Header="Last Status"  Width="100"
+                        <GridViewColumn Header="Previous Status"  Width="100"
                                         DisplayMemberBinding="{Binding LastResult.Status}" />
-                        <GridViewColumn Header="Last OuterHTML"  Width="100" 
-                                        DisplayMemberBinding="{Binding LastResult.TextSingleLine}"/>
 
                         <GridViewColumn Header="Started At" Width="Auto"
                                         DisplayMemberBinding="{Binding LastResult.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
@@ -215,6 +213,11 @@
                         <GridViewColumn Header="Elapsed" Width="100"
                                         DisplayMemberBinding="{Binding LastResult.Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}" />
 
+                        <GridViewColumn Header="Last Updated"  Width="Auto"
+                                        DisplayMemberBinding="{Binding LastUpdateResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                        
+                        <GridViewColumn Header="Last OuterHTML"  Width="100" 
+                                        DisplayMemberBinding="{Binding LastUpdateResult.TextSingleLine}"/>
                     </GridView>
                 </ListView.View>
             </ListView>

@@ -29,14 +29,14 @@
                         Manual Check
                     </TextBlock>
                 </Button>
-                <Separator />
+                <Separator /><!--
                 <Button>
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE117;" />
                         Reload
                     </TextBlock>
                 </Button>
-                <Separator />
+                <Separator />-->
                 <Button Command="{Binding ViewModel.SettingsCommand}">
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE115;" />
@@ -61,7 +61,7 @@
 
             <TabControl Grid.Column="0">
                 <TabItem Header="Grouped">
-                    <ListBox ItemsSource="{Binding ViewModel.GroupedResults}"
+                    <ListBox ItemsSource="{Binding ViewModel.Scraper.UpdateResults}"
                          SelectedItem="{Binding ViewModel.SelectedResult, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -71,7 +71,7 @@
                     </ListBox>
                 </TabItem>
                 <TabItem Header="All">
-                    <ListBox ItemsSource="{Binding ViewModel.Results}"
+                    <ListBox ItemsSource="{Binding ViewModel.Scraper.AllResults}"
                          SelectedItem="{Binding ViewModel.SelectedResult, Mode=TwoWay}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
