@@ -56,7 +56,7 @@ namespace Omawari
         public static string SettingsPath { get { return Path.Combine(DataFolder, "settings.json"); } }
         public static string ScrapersPath { get { return Path.Combine(DataFolder, "scrapers.json"); } }
 
-        private void Application_Startup(object sender, StartupEventArgs e)
+        private async void Application_Startup(object sender, StartupEventArgs e)
         {
             // データフォルダーのチェック
             DataFolder = Omawari.Properties.Settings.Default.DataFolder;
@@ -77,8 +77,10 @@ namespace Omawari
             }
 
             GlobalSettings = Models.GlobalSettings.Load(SettingsPath);
-            ScraperCollection = Models.ScraperCollection.Load(ScrapersPath);
             UpdateLog = new AsyncObservableCollection<Models.ScrapingResult>();
+            ScraperCollection = Models.ScraperCollection.Load(ScrapersPath);
+
+            foreach (var scraper in ScraperCollection) { await scraper.UpdateResultsAsync(); };
 
             // 通知アイコンの用意
             NotifyIcon.Text = App.Name;
@@ -123,7 +125,7 @@ namespace Omawari
                 {
                     await item.CheckAsync();
                 }
-                if (item.LastResult.CompletedAt + TimeSpan.FromMinutes(GlobalSettings.WaitTimeForChangingToPending) < now) // 10分経ったらペンディングにしとくかな
+                else if (item.LastResult.CompletedAt + TimeSpan.FromMinutes(GlobalSettings.WaitTimeForChangingToPending) < now) // 10分経ったらペンディングにしとくかな
                 {
                     item.Status = Models.ScrapingStatus.Pending;
                 }
