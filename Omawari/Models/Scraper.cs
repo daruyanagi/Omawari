@@ -23,6 +23,7 @@ namespace Omawari.Models
         private int interval = App.GlobalSettings.DefaultInterval; // 分単位
         private bool isDynamic = false;
         private bool isEnabled = true;
+        private List<ScrapingResult> allResult = null;
 
         public Guid Id
         {
@@ -87,26 +88,19 @@ namespace Omawari.Models
         [JsonIgnore]
         public ScrapingResult LastResult
         {
-            get { return AllResults.FirstOrDefault(); }
+            get { return AllResults?.FirstOrDefault(); }
         }
 
         [JsonIgnore]
         public ScrapingResult LastUpdateResult
         {
-            get { return UpdateResults.FirstOrDefault(); }
+            get { return UpdateResults?.FirstOrDefault(); }
         }
 
         [JsonIgnore]
         public List<ScrapingResult> AllResults
         {
-            get
-            {
-                return Directory
-                  .EnumerateFiles(Location)
-                  .Select(_ => File.ReadAllText(_).Deserialize<ScrapingResult>())
-                  .OrderByDescending(_ => _.CompletedAt)
-                  .ToList();
-            }
+            get { return allResult; }
         }
 
         [JsonIgnore]
@@ -114,7 +108,7 @@ namespace Omawari.Models
         {
             get
             {
-                return AllResults.GroupBy(_ => _.Text)
+                return AllResults?.GroupBy(_ => _.Text)
                     .Select(_ => _.OrderByDescending(__ => __.CompletedAt).Last())
                     .ToList();
             }
@@ -131,10 +125,7 @@ namespace Omawari.Models
             File.WriteAllText(result.Location, result.Serialize());
 
             // プロパティ更新。更新チェックの先にやっておかないと、App.Updated() がイヤんなことになる
-            OnPropertyChanged(nameof(AllResults));
-            OnPropertyChanged(nameof(UpdateResults));
-            OnPropertyChanged(nameof(LastResult));
-            OnPropertyChanged(nameof(LastUpdateResult));
+            await UpdateResultsAsync();
 
             // 更新（新規も含む）のチェック
             if (old == null || old.Text != result.Text)
@@ -143,6 +134,26 @@ namespace Omawari.Models
 
                 App.Updated(this, result); // イベントにしたいものだ
             }
+        }
+
+        public async Task UpdateResultsAsync()
+        {
+            var files = Directory.EnumerateFiles(Location);
+
+            allResult = await Task.Factory.StartNew<List<ScrapingResult>>(() =>
+            {
+                return Directory
+                  .EnumerateFiles(Location)
+                  .Select(_ => File.ReadAllText(_))
+                  .Select(_ => JsonConvert.DeserializeObject<ScrapingResult>(_))
+                  .OrderByDescending(_ => _.CompletedAt)
+                  .ToList();
+            });
+            
+            OnPropertyChanged(nameof(AllResults));
+            OnPropertyChanged(nameof(UpdateResults));
+            OnPropertyChanged(nameof(LastResult));
+            OnPropertyChanged(nameof(LastUpdateResult));
         }
 
         public async Task<ScrapingResult> RunAsync()
