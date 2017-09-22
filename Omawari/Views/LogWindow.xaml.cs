@@ -40,6 +40,8 @@ namespace Omawari.Views
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
         {
+            // ToDo: ViewModel への移譲
+
             Close();
         }
     }

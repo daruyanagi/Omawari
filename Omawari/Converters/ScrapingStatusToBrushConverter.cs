@@ -14,9 +14,10 @@ namespace Omawari.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is ScrapingStatus))
-                throw new ArgumentException("not ScrapingStatus", "value");
-            
+            if (value == null) return value;
+
+            if (!(value is ScrapingStatus)) return value;
+
             switch (((ScrapingStatus)value))
             {
                 case ScrapingStatus.Pending: return Brushes.Gray;

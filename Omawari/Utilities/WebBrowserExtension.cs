@@ -28,8 +28,10 @@ namespace Omawari.Utilities
         {
             WebBrowser browser = o as WebBrowser;
             if (browser == null) return;
+
             string html = e.NewValue as string;
             if (html == null) return;
+
             html = $@"
 <html>
     <head>

@@ -24,7 +24,7 @@ namespace Omawari.ViewModels
 
                 return manualCheckCommand = new RelayCommand(async () =>
                 {
-                    await Scraper.CheckAsync();
+                    await Scraper?.CheckAsync();
                 });
             }
         }
@@ -74,7 +74,7 @@ namespace Omawari.ViewModels
                 try
                 {
                     var index = Scraper.UpdateResults.IndexOf(SelectedResult) + 1;
-                    return SelectedResult.Diff(Scraper.UpdateResults[index]);
+                    return SelectedResult?.Diff(Scraper?.UpdateResults[index]);
                 }
                 catch
                 {

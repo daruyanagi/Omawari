@@ -14,6 +14,8 @@ namespace Omawari.Converters
         {
             if (value == null) return value;
 
+            if (!(value is TimeSpan)) return value;
+
             var span = (TimeSpan)value;
 
             if (span.Minutes > 0) return $"{span.Minutes} min {span.Seconds} sec";

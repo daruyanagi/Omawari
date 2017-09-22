@@ -10,14 +10,14 @@ namespace Omawari.ViewModels
     public class SettingViewModel : BindableBase
     {
         private RelayCommand<System.Windows.Window> okCommand = null;
-        private GlobalSettings settings = Models.GlobalSettings.Load(App.SettingsPath);
+        private GlobalSettings settings = Models.GlobalSettings.Load(App.Instance.SettingsPath);
 
         public RelayCommand<System.Windows.Window> OKCommand
         {
             get
             {
                 okCommand = okCommand ?? new RelayCommand<System.Windows.Window>((window) => {
-                    App.GlobalSettings = settings;
+                    App.Instance.GlobalSettings = settings;
                     settings.Save();
                     window.Close();
                 });

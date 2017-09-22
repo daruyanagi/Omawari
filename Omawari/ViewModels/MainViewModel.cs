@@ -19,9 +19,12 @@ namespace Omawari.ViewModels
         {
             var app = App.Current as App;
 
-            app.Initalized += (s, a) =>
+            app.TimerEnableChanged += (s, a) =>
             {
-                UpdateTimerRelatedControls();
+                TimerEnabled = a.TimerEnabled;
+                StartCommand.RaiseCanExecuteChanged();
+                StopCommand.RaiseCanExecuteChanged();
+                TimerStatusMessage = $"Timer Enabled: {TimerEnabled}";
             };
 
             app.Pulsed += (s, a) =>
@@ -44,18 +47,12 @@ namespace Omawari.ViewModels
         private RelayCommand settingsCommand = null;
         private RelayCommand helpCommand = null;
 
-        private ScraperCollection items = App.ScraperCollection;
-        private ObservableCollection<Models.ScrapingResult> updateLog = App.UpdateLog;
+        private ScraperCollection items = App.Instance.ScraperCollection;
+        private ObservableCollection<Models.ScrapingResult> updateLog = App.Instance.UpdateLog;
         private Scraper selectedItem = null;
         private string workingTimeMessage = null;
         private string timerStatusMessage = null;
-
-        private void UpdateTimerRelatedControls()
-        {
-            StartCommand.RaiseCanExecuteChanged();
-            StopCommand.RaiseCanExecuteChanged();
-            TimerStatusMessage = $"Timer Enabled: {App.GetTimerIsEnabled()}";
-        }
+        private bool timerEnabled = false;
 
         public RelayCommand StartCommand
         {
@@ -63,11 +60,10 @@ namespace Omawari.ViewModels
             {
                 if (startCommand != null) return startCommand;
 
-                return startCommand = new RelayCommand(() =>
-                {
-                    App.Start();
-                    UpdateTimerRelatedControls();
-                }, () => !App.GetTimerIsEnabled());
+                return startCommand = new RelayCommand(
+                    () => App.Instance.Start(),
+                    () => !TimerEnabled
+                );
             }
         }
 
@@ -77,11 +73,10 @@ namespace Omawari.ViewModels
             {
                 if (stopCommand != null) return stopCommand;
 
-                return stopCommand = new RelayCommand(() =>
-                {
-                    App.Stop();
-                    UpdateTimerRelatedControls();
-                }, () => App.GetTimerIsEnabled());
+                return stopCommand = new RelayCommand(
+                    () =>  App.Instance.Stop(),
+                    () => TimerEnabled
+                );
             }
         }
 
@@ -106,7 +101,7 @@ namespace Omawari.ViewModels
 
                 return helpCommand = new RelayCommand(() =>
                 {
-                    System.Diagnostics.Process.Start("http://daruyanagi.jp/");
+                    System.Diagnostics.Process.Start("http://blog.daruyanagi.jp/archive/category/Omawari");
                 });
             }
         }
@@ -134,7 +129,7 @@ namespace Omawari.ViewModels
                 {
                     if (SelectedItem == null) return;
 
-                    new DetailWindow(SelectedItem.Clone()).ShowDialog();
+                    new DetailWindow(SelectedItem.Duplicate()).ShowDialog();
 
                     SelectedItem = null;
                 }, () => SelectedItem != null);
@@ -151,7 +146,7 @@ namespace Omawari.ViewModels
                 {
                     if (SelectedItem == null) return;
 
-                    Items.Remove(SelectedItem);
+                    Items.Remove(SelectedItem); // ToDo：配列の操作をどこが担当しているのかがあいまい。Items への参照は消せるかもしれない
                     Items.Save();
 
                     SelectedItem = null;
@@ -216,7 +211,7 @@ namespace Omawari.ViewModels
 
         public string Title
         {
-            get { return $"{App.Name} v{App.Version}"; }
+            get { return $"{App.Instance.Name} v{App.Instance.Version}"; }
         }
 
         public ScraperCollection Items
@@ -255,6 +250,12 @@ namespace Omawari.ViewModels
         {
             get { return workingTimeMessage; }
             set { SetProperty(ref workingTimeMessage, value); }
+        }
+
+        public bool TimerEnabled
+        {
+            get { return timerEnabled; }
+            set { SetProperty(ref timerEnabled, value); }
         }
     }
 }

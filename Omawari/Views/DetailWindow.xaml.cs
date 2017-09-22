@@ -32,18 +32,18 @@ namespace Omawari.Views
             ViewModel.Scraper = scraper;
         }
 
-        public Models.Scraper Scraper { get { return ViewModel.Scraper; } }
+        // public Models.Scraper Scraper { get { return ViewModel.Scraper; } }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = true;
-            Close();
-        }
-
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
-        }
+        // private void SaveButton_Click(object sender, RoutedEventArgs e)
+        // {
+        //     DialogResult = true;
+        //     Close();
+        // }
+        // 
+        // private void CancelButton_Click(object sender, RoutedEventArgs e)
+        // {
+        //     DialogResult = false;
+        //     Close();
+        // }
     }
 }

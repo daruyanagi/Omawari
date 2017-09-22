@@ -19,6 +19,33 @@ namespace Omawari.ViewModels
         private RelayCommand<Window> okCommand;
         private RelayCommand<Window> cancelCommand;
 
+        private void AddOrSave()
+        {
+            // 既存のものは上書き
+            // 新規は追加して保存する
+
+            var item = App.Instance.ScraperCollection.FirstOrDefault(_ => _.Id == Scraper.Id);
+            if (item == null)
+            {
+                App.Instance.ScraperCollection.Add(Scraper);
+            }
+            else
+            {
+                App.Instance.ScraperCollection.Exchange(item, Scraper);
+            }
+            App.Instance.ScraperCollection.Save();
+        }
+
+        private void FillNameIfEmpty()
+        {
+            // 名前が空ならば補完しておく
+            // ToDo: グローバル設定に入れる
+            if (string.IsNullOrEmpty(Scraper.Name))
+            {
+                Scraper.Name = $"{Scraper.Target} @ {Scraper.Selectors}";
+            }
+        }
+
         public RelayCommand RunCommand
         {
             get
@@ -38,30 +65,22 @@ namespace Omawari.ViewModels
             {
                 if (okCommand != null) return okCommand;
 
-                return okCommand = new RelayCommand<System.Windows.Window>((window) =>
+                return okCommand = new RelayCommand<Window>((window) =>
                 {
                     if (Result?.Status != "success")
                     {
-                        App.ShowCaution("Please test and pass it.");
+                        App.Instance.ShowCaution("Please test and pass it.");
                         return;
                     }
 
-                    if (string.IsNullOrEmpty(Scraper.Name)) Scraper.Name = $"{Scraper.Target} @ {Scraper.Selectors}";
-
-                    var item = App.ScraperCollection.FirstOrDefault(_ => _.Id == Scraper.Id);
-
-                    if (item == null)
-                        App.ScraperCollection.Add(Scraper);
-                    else
-                        App.ScraperCollection.Exchange(item, Scraper);
-
-                    App.ScraperCollection.Save();
+                    FillNameIfEmpty();
+                    AddOrSave();
 
                     window.Close();
                 });
             }
         }
-        
+
         public RelayCommand<System.Windows.Window> CancelCommand
         {
             get

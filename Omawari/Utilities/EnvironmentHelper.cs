@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Omawari.Utilities
 {
+    /// <summary>
+    /// これらのメソッドは利用しなくなったけど、なんとなく残している
+    /// </summary>
     public static class EnvironmentHelper
     {
         public static string GetOneDrivePath()
