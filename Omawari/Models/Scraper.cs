@@ -12,6 +12,7 @@ namespace Omawari.Models
     using AngleSharp.Dom.Html;
     using System.Net.Http;
     using AngleSharp.Parser.Html;
+    using System.Runtime.CompilerServices;
 
     public class Scraper : BindableBase
     {
@@ -20,10 +21,17 @@ namespace Omawari.Models
         private ScrapingStatus status = ScrapingStatus.Pending;
         private Guid id = Guid.NewGuid();
         private string name = default(string);
-        private int interval = App.GlobalSettings.DefaultInterval; // 分単位
+        private int interval = App.Instance.GlobalSettings.DefaultInterval; // 分単位
         private bool isDynamic = false;
         private bool isEnabled = true;
         private List<ScrapingResult> allResult = null;
+
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+
+            App.Instance.ScraperCollection?.Save(); // Add/Edit してる時も動いちゃうけど、まぁ、いいか
+        }
 
         public Guid Id
         {
@@ -79,7 +87,7 @@ namespace Omawari.Models
         {
             get
             {
-                var path = Path.Combine(App.DataFolder, Id.ToString());
+                var path = Path.Combine(App.Instance.DataFolder, Id.ToString());
                 Directory.CreateDirectory(path);
                 return path;
             }
@@ -119,20 +127,20 @@ namespace Omawari.Models
             if (!IsEnabled) return;
 
             var result = await RunAsync();
-            var old = LastResult;
+            var old_result = LastResult; // 保存する前に残しておく
 
             // スクレイピング結果の保存
-            File.WriteAllText(result.Location, result.Serialize());
+            File.WriteAllText(result.Location, JsonConvert.SerializeObject(result, Formatting.Indented));
 
             // プロパティ更新。更新チェックの先にやっておかないと、App.Updated() がイヤんなことになる
             await UpdateResultsAsync();
 
             // 更新（新規も含む）のチェック
-            if (old == null || old.Text != result.Text)
+            if (old_result?.Text != result.Text)
             {
                 Status = ScrapingStatus.Updated;
 
-                App.Updated(this, result); // イベントにしたいものだ
+                App.Instance.NotifyUpdateDetected(this, result);
             }
         }
 
@@ -142,6 +150,7 @@ namespace Omawari.Models
 
             allResult = await Task.Factory.StartNew<List<ScrapingResult>>(() =>
             {
+                // ToDo: エラーハンドリング？
                 return Directory
                   .EnumerateFiles(Location)
                   .Select(_ => File.ReadAllText(_))
@@ -201,7 +210,7 @@ namespace Omawari.Models
                     var parser = new HtmlParser();
                     doc = await parser.ParseAsync(stream);
                     
-                    return ("success", doc.QuerySelector(Selectors).OuterHtml);
+                    return ("success", doc.QuerySelector(Selectors)?.OuterHtml);
                 }
             }
             catch
@@ -261,9 +270,10 @@ namespace Omawari.Models
             }));
         }
 
-        public Scraper Clone()
+        public Scraper Duplicate()
         {
-            return (this.Serialize()).Deserialize<Scraper>();
+            // シリアライズ・デシリアライズでオブジェクトのコピーを作ったつもり
+            return JsonConvert.DeserializeObject<Scraper>((JsonConvert.SerializeObject(this)));
         }
     }
 }

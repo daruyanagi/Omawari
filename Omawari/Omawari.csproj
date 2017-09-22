@@ -112,7 +112,6 @@
     </Compile>
     <None Include="Omawari_TemporaryKey.pfx" />
     <None Include="packages.config" />
-    <Compile Include="Utilities\SerializeHelper.cs" />
     <Compile Include="Utilities\WebBrowserExtension.cs" />
     <Compile Include="ViewModels\DetailViewModel.cs" />
     <Compile Include="ViewModels\LogViewModel.cs" />

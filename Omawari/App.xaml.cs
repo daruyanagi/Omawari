@@ -22,12 +22,7 @@ namespace Omawari
         [STAThread]
         public static void Main()
         {
-#if DEBUG
-            const string id = "{9ABF2DEC-1CA9-4A76-A2BE-C86AE811DA64}";
-#else
-            const string id = "{B70D60F7-96A6-47EC-B2DA-D47D899A7861}";
-#endif
-            using (var Semaphore = new Semaphore(1, 1, id, out bool created))
+            using (var Semaphore = new Semaphore(1, 1, APP_ID, out bool created))
             {
                 if (!created) return;
 
@@ -37,19 +32,22 @@ namespace Omawari
             }
         }
 
-        public static readonly Assembly Assembly = System.Reflection.Assembly.GetExecutingAssembly();
 #if DEBUG
-        public static readonly string Name = $"{Assembly.GetName().Name} (DEBUG)";
+        private const string APP_ID = "{9ABF2DEC-1CA9-4A76-A2BE-C86AE811DA64}";
+        public string Name { get; } = $"{Assembly.GetExecutingAssembly().GetName().Name} (DEBUG)";
 #else
-        public static readonly string Name = Assembly.GetName().Name;
+        private const string APP_ID = "{B70D60F7-96A6-47EC-B2DA-D47D899A7861}";
+        public string Name { get; } = $"{Assembly.GetExecutingAssembly().GetName().Name}";
 #endif
-        public static readonly Version Version = Assembly.GetName().Version;
+        public Assembly Assembly { get; } = Assembly.GetExecutingAssembly();
+        public Version Version { get; } = Assembly.GetExecutingAssembly().GetName().Version;
 
-        private static Forms.Timer Timer = new Forms.Timer();
-        private static Forms.NotifyIcon NotifyIcon = new Forms.NotifyIcon();
+        private Forms.Timer Timer = new Forms.Timer();
+        private Forms.NotifyIcon NotifyIcon = new Forms.NotifyIcon();
 
         public event EventHandler<PulsedEventArgs> Pulsed = null;
-        public event EventHandler Initalized = null;
+        public event EventHandler<TimerEnableChangedArgs> TimerEnableChanged = null;
+        public event EventHandler<UpdateDetectedChangedArgs> UpdateDetected = null;
 
         protected void OnPulsed()
         {
@@ -58,22 +56,32 @@ namespace Omawari
             Pulsed?.Invoke(this, new PulsedEventArgs(++WorkingMinutes));
         }
 
-        protected void OnInitalized()
+        protected void OnTimerEnableChanged()
         {
-            Initalized?.Invoke(this, EventArgs.Empty);
+            TimerEnableChanged?.Invoke(this, new TimerEnableChangedArgs(Timer.Enabled));
         }
 
-        public static Models.ScraperCollection ScraperCollection { get; private set; }
-        public static AsyncObservableCollection<Models.ScrapingResult> UpdateLog { get; private set; }
-        public static Models.GlobalSettings GlobalSettings { get; set; }
-        public static int WorkingMinutes { get; set; } = 0;
-        public static string DataFolder { get; set; }
-        public static string SettingsPath { get { return Path.Combine(DataFolder, "settings.json"); } }
-        public static string ScrapersPath { get { return Path.Combine(DataFolder, "scrapers.json"); } }
+        public void NotifyUpdateDetected(Models.Scraper scraper, Models.ScrapingResult result)
+        {
+            Instance.UpdateLog.Insert(0, result);
+            Instance.ShowInformation($"{scraper.Name} is updated.");
+
+            UpdateDetected?.Invoke(this, new UpdateDetectedChangedArgs(scraper, result));
+        }
+
+        public static App Instance { get { return App.Current as App; } }
+
+        public Models.ScraperCollection ScraperCollection { get; private set; }
+        public AsyncObservableCollection<Models.ScrapingResult> UpdateLog { get; private set; }
+        public Models.GlobalSettings GlobalSettings { get; set; }
+        public int WorkingMinutes { get; set; } = 0;
+        public string DataFolder { get; set; }
+        public string SettingsPath { get { return Path.Combine(DataFolder, "settings.json"); } }
+        public string ScrapersPath { get { return Path.Combine(DataFolder, "scrapers.json"); } }
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            // データフォルダーのチェック
+            // データフォルダーのチェック：Properties.Settings.Default で管理するのはこのデータだけ
             DataFolder = Omawari.Properties.Settings.Default.DataFolder;
             if (!Directory.Exists(DataFolder))
             {
@@ -91,15 +99,14 @@ namespace Omawari
                 }
             }
 
+            // プロパティの初期化
             GlobalSettings = Models.GlobalSettings.Load(SettingsPath);
             UpdateLog = new AsyncObservableCollection<Models.ScrapingResult>();
             ScraperCollection = Models.ScraperCollection.Load(ScrapersPath);
 
-            foreach (var scraper in ScraperCollection) { await scraper.UpdateResultsAsync(); };
-
-            // 通知アイコンの用意
-            NotifyIcon.Text = App.Name;
-            NotifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(App.Assembly.Location);
+            // 通知アイコンの初期化
+            NotifyIcon.Text = App.Instance.Name;
+            NotifyIcon.Icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
             NotifyIcon.Visible = true;
             NotifyIcon.Click += (s, a) => { if (MainWindow.IsVisible) MainWindow.Hide(); else MainWindow.Show(); };
             NotifyIcon.ContextMenu = new Forms.ContextMenu(new Forms.MenuItem[]
@@ -108,11 +115,15 @@ namespace Omawari
                 new Forms.MenuItem("Exit", (s, a) => { App.Current.Shutdown(); }),
             });
 
+            // コレクションとタイマーの初期化
+            foreach (var scraper in ScraperCollection)
+            {
+                await scraper.UpdateResultsAsync();
+            }
+
             Timer.Interval = 60 * 1000;
             Timer.Tick += (s, a) => { OnPulsed(); };
             if (GlobalSettings.AutoStart) Start();
-
-            OnInitalized();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
@@ -122,18 +133,11 @@ namespace Omawari
             GlobalSettings.Save();
         }
 
-        public static void Updated(Models.Scraper scraper, Models.ScrapingResult result)
-        {
-            ShowInformation($"{scraper.Name} is updated.");
-
-            UpdateLog.Insert(0, result);
-        }
-
-        public static void CheckAll()
+        public void CheckAll()
         {
             var now = DateTime.UtcNow;
 
-            Parallel.ForEach(ScraperCollection, async (item) =>
+            Parallel.ForEach(Instance.ScraperCollection, async (item) =>
             {
                 if (item.Status == Models.ScrapingStatus.Running) return;
                 
@@ -142,41 +146,35 @@ namespace Omawari
                 {
                     await item.CheckAsync();
                 }
-                else if (item.LastResult.CompletedAt + TimeSpan.FromMinutes(GlobalSettings.WaitTimeForChangingToPending) < now) // 10分経ったらペンディングにしとくかな
+                // ToDo: WaitTimeForChangingToPending の設定ユーザーインターフェイスを追加する
+                else if (item.LastResult.CompletedAt + TimeSpan.FromMinutes(Instance.GlobalSettings.WaitTimeForChangingToPending) < now)
                 {
                     item.Status = Models.ScrapingStatus.Pending;
                 }
             });
         }
-
-        public static void Start()
+        
+        public void Start()
         {
             Timer.Start();
+            OnTimerEnableChanged();
         }
 
-        public static void Stop()
+        public void Stop()
         {
             Timer.Stop();
+            OnTimerEnableChanged();
         }
 
-        public static void StartOrStop()
+        // ToDo：トースト通知にする
+        public void ShowInformation(string message, int duration = 5 * 1000)
         {
-            if (Timer.Enabled) Timer.Stop(); else Timer.Start();
+            NotifyIcon.ShowBalloonTip(duration, Instance.Name, message, Forms.ToolTipIcon.Info);
         }
 
-        public static bool GetTimerIsEnabled()
+        public void ShowCaution(string message, int duration = 5 * 1000)
         {
-            return Timer.Enabled;
-        }
-
-        public static void ShowInformation(string message, int duration = 5 * 1000)
-        {
-            NotifyIcon.ShowBalloonTip(duration, App.Name, message, Forms.ToolTipIcon.Info);
-        }
-
-        public static void ShowCaution(string message, int duration = 5 * 1000)
-        {
-            NotifyIcon.ShowBalloonTip(duration, App.Name, message, Forms.ToolTipIcon.Error);
+            NotifyIcon.ShowBalloonTip(duration, Instance.Name, message, Forms.ToolTipIcon.Error);
         }
 
         public class PulsedEventArgs
@@ -187,6 +185,28 @@ namespace Omawari
             }
 
             public int WorkingMinutes { get; set; }
+        }
+
+        public class TimerEnableChangedArgs
+        {
+            public TimerEnableChangedArgs(bool timerEnabled)
+            {
+                TimerEnabled = timerEnabled;
+            }
+
+            public bool TimerEnabled { get; set; }
+        }
+
+        public class UpdateDetectedChangedArgs
+        {
+            public UpdateDetectedChangedArgs(Models.Scraper scraper, Models.ScrapingResult result)
+            {
+                Scraper = scraper;
+                Result = result;
+            }
+
+            Models.Scraper Scraper { get; set; }
+            Models.ScrapingResult Result { get; set; }
         }
     }
 }

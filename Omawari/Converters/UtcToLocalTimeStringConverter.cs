@@ -14,6 +14,8 @@ namespace Omawari.Converters
         {
             if (value == null) return value;
 
+            if (!(value is DateTime)) return value;
+
             var utc = (DateTime)value;
 
             return utc.Add(DateTime.Now - DateTime.UtcNow);

@@ -22,7 +22,7 @@ namespace Omawari.Models
         public DateTime CompletedAt { get; set; }
 
         [JsonIgnore]
-        public Scraper Scraper { get { return App.ScraperCollection.FirstOrDefault(_ => _.Id == ScraperId); } }
+        public Scraper Scraper { get { return App.Instance.ScraperCollection.FirstOrDefault(_ => _.Id == ScraperId); } }
         [JsonIgnore]
         public TimeSpan Duration { get { return CompletedAt - StartedAt; } }
         [JsonIgnore]
@@ -32,9 +32,11 @@ namespace Omawari.Models
 
         public string Diff(ScrapingResult result)
         {
-            if (result.Text == Text) return "Defference is not find.";
+            if (result == null) return "Target is null";
 
-            var diff = new HtmlDiff.HtmlDiff(result.Text, Text);
+            if (result?.Text == Text) return "Defference is not find.";
+
+            var diff = new HtmlDiff.HtmlDiff(result?.Text, Text);
             var html = diff.Build();
             return html;
         }
