@@ -48,6 +48,21 @@ namespace Omawari
         private static Forms.Timer Timer = new Forms.Timer();
         private static Forms.NotifyIcon NotifyIcon = new Forms.NotifyIcon();
 
+        public event EventHandler<PulsedEventArgs> Pulsed = null;
+        public event EventHandler Initalized = null;
+
+        protected void OnPulsed()
+        {
+            CheckAll();
+
+            Pulsed?.Invoke(this, new PulsedEventArgs(++WorkingMinutes));
+        }
+
+        protected void OnInitalized()
+        {
+            Initalized?.Invoke(this, EventArgs.Empty);
+        }
+
         public static Models.ScraperCollection ScraperCollection { get; private set; }
         public static AsyncObservableCollection<Models.ScrapingResult> UpdateLog { get; private set; }
         public static Models.GlobalSettings GlobalSettings { get; set; }
@@ -94,8 +109,10 @@ namespace Omawari
             });
 
             Timer.Interval = 60 * 1000;
-            Timer.Tick += (s, a) => { CheckAll(); WorkingMinutes++; };
+            Timer.Tick += (s, a) => { OnPulsed(); };
             if (GlobalSettings.AutoStart) Start();
+
+            OnInitalized();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
@@ -160,6 +177,16 @@ namespace Omawari
         public static void ShowCaution(string message, int duration = 5 * 1000)
         {
             NotifyIcon.ShowBalloonTip(duration, App.Name, message, Forms.ToolTipIcon.Error);
+        }
+
+        public class PulsedEventArgs
+        {
+            public PulsedEventArgs(int workingMinutes)
+            {
+                WorkingMinutes = workingMinutes;
+            }
+
+            public int WorkingMinutes { get; set; }
         }
     }
 }

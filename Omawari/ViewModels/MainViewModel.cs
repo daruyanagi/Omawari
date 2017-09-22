@@ -17,9 +17,21 @@ namespace Omawari.ViewModels
     {
         public MainViewModel()
         {
+            var app = App.Current as App;
 
+            app.Initalized += (s, a) =>
+            {
+                UpdateTimerRelatedControls();
+            };
+
+            app.Pulsed += (s, a) =>
+            {
+                WorkingTimeMessage = a.WorkingMinutes != 1
+                    ? $"Working: {a.WorkingMinutes} times (Last pulse: {DateTime.Now})"
+                    : $"Working: {a.WorkingMinutes} time (Last pulse: {DateTime.Now})";
+            };
         }
-        
+
         private RelayCommand addScraperCommand = null;
         private RelayCommand editScraperCommand = null;
         private RelayCommand removeScraperCommand = null;
@@ -30,13 +42,20 @@ namespace Omawari.ViewModels
         private RelayCommand exitCommand = null;
         private RelayCommand checkAllScraperCommand = null;
         private RelayCommand settingsCommand = null;
+        private RelayCommand helpCommand = null;
 
         private ScraperCollection items = App.ScraperCollection;
         private ObservableCollection<Models.ScrapingResult> updateLog = App.UpdateLog;
         private Scraper selectedItem = null;
+        private string workingTimeMessage = null;
+        private string timerStatusMessage = null;
 
-        private string timerCommandLabel = "Start";
-        private RelayCommand helpCommand;
+        private void UpdateTimerRelatedControls()
+        {
+            StartCommand.RaiseCanExecuteChanged();
+            StopCommand.RaiseCanExecuteChanged();
+            TimerStatusMessage = $"Timer Enabled: {App.GetTimerIsEnabled()}";
+        }
 
         public RelayCommand StartCommand
         {
@@ -47,9 +66,7 @@ namespace Omawari.ViewModels
                 return startCommand = new RelayCommand(() =>
                 {
                     App.Start();
-                    StartCommand.RaiseCanExecuteChanged();
-                    StopCommand.RaiseCanExecuteChanged();
-                    OnPropertyChanged(nameof(StatusBarMessage));
+                    UpdateTimerRelatedControls();
                 }, () => !App.GetTimerIsEnabled());
             }
         }
@@ -63,9 +80,7 @@ namespace Omawari.ViewModels
                 return stopCommand = new RelayCommand(() =>
                 {
                     App.Stop();
-                    StartCommand.RaiseCanExecuteChanged();
-                    StopCommand.RaiseCanExecuteChanged();
-                    OnPropertyChanged(nameof(StatusBarMessage));
+                    UpdateTimerRelatedControls();
                 }, () => App.GetTimerIsEnabled());
             }
         }
@@ -230,15 +245,16 @@ namespace Omawari.ViewModels
             }
         }
 
-        public string TimerCommandLabel
+        public string TimerStatusMessage
         {
-            get { return timerCommandLabel; }
-            set { SetProperty(ref timerCommandLabel, value); }
+            get { return timerStatusMessage; }
+            set { SetProperty(ref timerStatusMessage, value); }
         }
 
-        public string StatusBarMessage
+        public string WorkingTimeMessage
         {
-            get { return $"Timer: {App.GetTimerIsEnabled()}"; }
+            get { return workingTimeMessage; }
+            set { SetProperty(ref workingTimeMessage, value); }
         }
     }
 }
