@@ -251,7 +251,8 @@
         </ListView>
 
         <StatusBar Grid.Row="5">
-            <StatusBarItem Content="{Binding ViewModel.StatusBarMessage}" />
+            <StatusBarItem Content="{Binding ViewModel.TimerStatusMessage}" />
+            <StatusBarItem Content="{Binding ViewModel.WorkingTimeMessage}" />
         </StatusBar>
     </Grid>
 </Window>
