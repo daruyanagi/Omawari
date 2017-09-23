@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>omawari</id>
+    <title>Omawari</title>
+    <version>*</version>
+    <authors>daruyanagi</authors>
+    <owners>daruyanagi</owners>
+    <summary>Web Update Chacker that supports static/dynamic scraping.</summary>
+    <description>
+Omawari is a simple web checker. You can check a part of the web page witch is specified CSS selectors. Using dynamic scraping powered by PhantomJS, you can check dynamic web page, too.
+</description>
+    <projectUrl>http://blog.daruyanagi.jp/archive/category/Omawari</projectUrl>
+    <tags>web update scraping</tags>
+    <iconUrl>http://cdn-ak.f.st-hatena.com/images/fotolife/d/daruyanagi/20170304/20170304134245.png</iconUrl>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
