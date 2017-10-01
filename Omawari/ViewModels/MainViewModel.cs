@@ -112,11 +112,7 @@ namespace Omawari.ViewModels
             {
                 if (addScraperCommand != null) return addScraperCommand;
 
-                return addScraperCommand = new RelayCommand(() =>
-                {
-                    // new DetailWindow(new Models.ScrapingRule()).ShowDialog();
-                    CreateScrapingRuleWindow.CreateScrapingRule();
-                });
+                return addScraperCommand = new RelayCommand(() => App.Instance.CreateRule());
             }
         }
 
@@ -126,14 +122,10 @@ namespace Omawari.ViewModels
             {
                 if (editScraperCommand != null) return editScraperCommand;
 
-                return editScraperCommand = new RelayCommand(() =>
-                {
-                    if (SelectedItem == null) return;
-
-                    new DetailWindow(SelectedItem.Duplicate()).ShowDialog();
-
-                    SelectedItem = null;
-                }, () => SelectedItem != null);
+                return editScraperCommand = new RelayCommand(
+                    () => App.Instance.ShowRule(SelectedItem),
+                    () => SelectedItem != null
+                );
             }
         }
 
@@ -143,15 +135,10 @@ namespace Omawari.ViewModels
             {
                 if (removeScraperCommand != null) return removeScraperCommand;
 
-                return removeScraperCommand = new RelayCommand(() =>
-                {
-                    if (SelectedItem == null) return;
-
-                    Items.Remove(SelectedItem); // ToDo：配列の操作をどこが担当しているのかがあいまい。Items への参照は消せるかもしれない
-                    Items.Save();
-
-                    SelectedItem = null;
-                }, () => SelectedItem != null);
+                return removeScraperCommand = new RelayCommand(
+                    () => App.Instance.DeleteRule(SelectedItem),
+                    () => SelectedItem != null
+                );
             }
         }
 

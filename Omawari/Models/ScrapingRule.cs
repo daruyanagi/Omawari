@@ -125,22 +125,44 @@ namespace Omawari.Models
         public async Task CheckAsync()
         {
             if (!IsEnabled) return;
+            
+            // 新しい結果を保存する前に古い結果を保管
+            var old_result = LastResult; 
 
+            // 新しい結果を取得・ファイルとして保存
             var result = await RunAsync();
-            var old_result = LastResult; // 保存する前に残しておく
-
-            // スクレイピング結果の保存
+            if (result == null) return;
+            else if (string.IsNullOrEmpty(result.Text)) result.Status = "Empty";
+            else if (old_result == null) result.Status = "New";
+            else if (old_result.Text != result.Text) result.Status = "Updated";
             File.WriteAllText(result.Location, JsonConvert.SerializeObject(result, Formatting.Indented));
 
             // プロパティ更新。更新チェックの先にやっておかないと、App.Updated() がイヤんなことになる
             await UpdateResultsAsync();
-
-            // 更新（新規も含む）のチェック
-            if (old_result?.Text != result.Text)
+            
+            switch (result.Status.ToLower())
             {
-                Status = ScrapingStatus.Updated;
-
-                App.Instance.NotifyUpdateDetected(this, result);
+                case "succeeded":
+                case "success":
+                    Status = ScrapingStatus.Succeeded;
+                    break;
+                case "empty":
+                    Status = ScrapingStatus.Empty;
+                    // ToDo: 失敗イベントを新設する
+                    break;
+                case "new":
+                case "updated":
+                    Status = ScrapingStatus.Updated;
+                    App.Instance.NotifyUpdateDetected(this, result);
+                    break;
+                case "fail":
+                case "failed":
+                    Status = ScrapingStatus.Failed;
+                    // ToDo: 失敗イベントを新設する
+                    break;
+                default:
+                    //
+                    break;
             }
         }
 

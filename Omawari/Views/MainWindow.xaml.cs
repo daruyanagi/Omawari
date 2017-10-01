@@ -47,15 +47,17 @@ namespace Omawari.Views
         private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             // ViewModel.LogSelectedScraperCommand.Execute(null);
-            var window = new Views.ScrapingRuleWindow(ViewModel.SelectedItem);
-            window.ShowDialog();
+            // var window = new Views.ScrapingRuleWindow(ViewModel.SelectedItem);
+            // window.ShowDialog();
+            App.Instance.ShowRule(ViewModel.SelectedItem);
         }
         
         private void listViewLog_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var result = listViewLog.SelectedItem as Models.ScrapingResult;
-            var window = new Views.LogWindow(result.Scraper, result);
-            window.ShowDialog();
+            // var window = new Views.LogWindow(result.Scraper, result);
+            // window.ShowDialog();
+            App.Instance.ShowResult(result);
         }
     }
 }

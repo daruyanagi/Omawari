@@ -23,7 +23,7 @@
                 <MenuItem.Header>
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE1C2;" />
-                        Edit
+                        Edit / View Log
                     </TextBlock>
                 </MenuItem.Header>
             </MenuItem>
@@ -51,8 +51,8 @@
                         Check Selected
                     </TextBlock>
                 </MenuItem.Header>
-            </MenuItem>
-            <Separator />
+            </MenuItem><!--
+            <Separator /> 
             <MenuItem Command="{Binding ViewModel.LogSelectedScraperCommand}">
                 <MenuItem.Header>
                     <TextBlock>
@@ -60,7 +60,7 @@
                         Show Log
                     </TextBlock>
                 </MenuItem.Header>
-            </MenuItem>
+            </MenuItem>-->
         </collection:ArrayList>
     </Window.Resources>
     
@@ -105,7 +105,7 @@
                 <Button Command="{Binding ViewModel.EditScraperCommand}">
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE1C2;" />
-                        Edit
+                        Edit / View Log
                     </TextBlock>
                 </Button>
                 <Button Command="{Binding ViewModel.RemoveScraperCommand}">
@@ -127,14 +127,14 @@
                         Check Selected
                     </TextBlock>
                 </Button>
-                <Separator></Separator>
+                <Separator></Separator><!--
                 <Button Command="{Binding ViewModel.LogSelectedScraperCommand}">
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE14C;" />
                         Show Log
                     </TextBlock>
                 </Button>
-                <Separator></Separator>
+                <Separator></Separator>-->
                 <Button Command="{Binding ViewModel.SettingsCommand}">
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE115;" />

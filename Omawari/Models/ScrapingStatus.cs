@@ -13,5 +13,6 @@ namespace Omawari.Models
         Succeeded,
         Failed,
         Updated,
+        Empty,
     }
 }

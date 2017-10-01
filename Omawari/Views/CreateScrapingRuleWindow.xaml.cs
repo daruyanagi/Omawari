@@ -26,24 +26,5 @@ namespace Omawari.Views
             InitializeComponent();
             DataContext = this;
         }
-
-        public static void CreateScrapingRule()
-        {
-            var window = new CreateScrapingRuleWindow();
-
-            if (window.ShowDialog() == true)
-            {
-                // ToDo: バリデーション
-
-                var rule = window.ViewModel.Rule;
-
-                if (string.IsNullOrEmpty(rule.Name))
-                {
-                    rule.Name = $"{rule.Target} @ {rule.Selectors}";
-                }
-
-                App.Instance.ScraperCollection.Add(window.ViewModel.Rule);
-            }
-        }
     }
 }
