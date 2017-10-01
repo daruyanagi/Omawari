@@ -10,7 +10,7 @@ namespace Omawari.Models
     public class ScrapingResult
     {
         public ScrapingResult() { }
-        public ScrapingResult(Scraper scraper) : this() { ScraperId = scraper.Id; }
+        public ScrapingResult(ScrapingRule scraper) : this() { ScraperId = scraper.Id; }
 
         public Guid Id { get; set; } = Guid.NewGuid();
         public Guid ScraperId { get; set; }
@@ -22,7 +22,7 @@ namespace Omawari.Models
         public DateTime CompletedAt { get; set; }
 
         [JsonIgnore]
-        public Scraper Scraper { get { return App.Instance.ScraperCollection.FirstOrDefault(_ => _.Id == ScraperId); } }
+        public ScrapingRule Scraper { get { return App.Instance.ScraperCollection.FirstOrDefault(_ => _.Id == ScraperId); } }
         [JsonIgnore]
         public TimeSpan Duration { get { return CompletedAt - StartedAt; } }
         [JsonIgnore]

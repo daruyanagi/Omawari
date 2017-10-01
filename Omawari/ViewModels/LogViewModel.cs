@@ -11,7 +11,7 @@ namespace Omawari.ViewModels
     public class LogViewModel : BindableBase
     {
         private ScrapingResult result = null;
-        private Scraper scraper;
+        private ScrapingRule scraper;
         
         private RelayCommand manualCheckCommand;
         private RelayCommand settingsCommand;
@@ -47,7 +47,7 @@ namespace Omawari.ViewModels
             get { return $"Log: {Scraper.Name}"; }
         }
 
-        public Scraper Scraper
+        public ScrapingRule Scraper
         {
             get { return scraper; }
             set

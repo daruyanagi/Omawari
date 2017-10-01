@@ -11,29 +11,29 @@ using System.Windows;
 
 namespace Omawari.Models
 {
-    public class ScraperCollection : ObservableCollection<Scraper>
+    public class ScrapingRuleCollection : ObservableCollection<ScrapingRule>
     {
-        private ScraperCollection() { }
+        private ScrapingRuleCollection() { }
 
         [JsonIgnore]
         private string Path { get; set; }
 
-        public static ScraperCollection Load(string path)
+        public static ScrapingRuleCollection Load(string path)
         {
             try
             {
                 var json = File.ReadAllText(path);
-                var temp = JsonConvert.DeserializeObject<ObservableCollection<Scraper>>(json);
+                var temp = JsonConvert.DeserializeObject<ObservableCollection<ScrapingRule>>(json);
 
                 // 一発でシリアライズしてくれないから自分でやる
-                var collection = new ScraperCollection() { Path = path, };
+                var collection = new ScrapingRuleCollection() { Path = path, };
                 foreach (var item in temp) collection.Add(item);
 
                 return collection;
             }
             catch
             {
-                return new ScraperCollection() { Path = path, };
+                return new ScrapingRuleCollection() { Path = path, };
             }
         }
 
@@ -50,7 +50,7 @@ namespace Omawari.Models
             }
         }
 
-        public void Exchange(Scraper item1, Scraper item2)
+        public void Exchange(ScrapingRule item1, ScrapingRule item2)
         {
             this[Items.IndexOf(item1)] = item2;
         }

@@ -62,10 +62,6 @@
                 </MenuItem.Header>
             </MenuItem>
         </collection:ArrayList>
-
-        <converter:ScrapingStatusToBrushConverter x:Key="ScrapingStatusToBrushConverter"/>
-        <converter:UtcToLocalTimeStringConverter x:Key="UtcToLocalTimeStringConverter"/>
-        <converter:TimeSpanToEasyReadStringConverter x:Key="TimeSpanToEasyReadStringConverter"/>
     </Window.Resources>
     
     <Grid>

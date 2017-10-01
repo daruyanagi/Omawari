@@ -96,8 +96,8 @@
     <Compile Include="Converters\ScrapingStatusToBrushConverter.cs" />
     <Compile Include="Converters\TimeSpanToEasyReadStringConverter.cs" />
     <Compile Include="Converters\UtcToLocalTimeStringConverter.cs" />
-    <Compile Include="Models\Scraper.cs" />
-    <Compile Include="Models\ScraperCollection.cs" />
+    <Compile Include="Models\ScrapingRule.cs" />
+    <Compile Include="Models\ScrapingRuleCollection.cs" />
     <Compile Include="Models\ScrapingResult.cs" />
     <Compile Include="Models\ScrapingStatus.cs" />
     <Compile Include="Models\GlobalSettings.cs" />
@@ -106,7 +106,23 @@
     <Compile Include="Utilities\BindableBase.cs" />
     <Compile Include="Utilities\EnvironmentHelper.cs" />
     <Compile Include="Utilities\RelayCommand.cs" />
+    <Compile Include="ViewModels\CreateScrapingRuleViewModel.cs" />
+    <Compile Include="ViewModels\ScrapingRuleViewModel.cs" />
+    <Compile Include="ViewModels\ScrapingResultViewModel.cs" />
+    <Compile Include="ViewModels\ScrapingTestViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
+    <Compile Include="Views\CreateScrapingRuleWindow.xaml.cs">
+      <DependentUpon>CreateScrapingRuleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ScrapingResultWindow.xaml.cs">
+      <DependentUpon>ScrapingResultWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ScrapingRuleWindow.xaml.cs">
+      <DependentUpon>ScrapingRuleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ScrapingTestWindow.xaml.cs">
+      <DependentUpon>ScrapingTestWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -129,6 +145,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\CreateScrapingRuleWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DetailWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -138,6 +158,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ScrapingResultWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ScrapingRuleWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ScrapingTestWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

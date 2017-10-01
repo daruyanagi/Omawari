@@ -13,7 +13,7 @@ namespace Omawari.ViewModels
 
     public class DetailViewModel : BindableBase
     {
-        private Scraper scraper = default(Scraper);
+        private ScrapingRule scraper = default(ScrapingRule);
         private ScrapingResult result;
         private RelayCommand runCommand;
         private RelayCommand<Window> okCommand;
@@ -104,7 +104,7 @@ namespace Omawari.ViewModels
             }
         }
 
-        public Scraper Scraper
+        public ScrapingRule Scraper
         {
             get { return scraper; }
             set { SetProperty(ref scraper, value); }
