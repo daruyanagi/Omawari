@@ -12,6 +12,7 @@ using System.Windows;
 
 namespace Omawari
 {
+    using Omawari.Models;
     using Forms = System.Windows.Forms;
 
     /// <summary>
@@ -46,6 +47,7 @@ namespace Omawari
         private Forms.NotifyIcon NotifyIcon = new Forms.NotifyIcon();
 
         public event EventHandler<PulsedEventArgs> Pulsed = null;
+
         public event EventHandler<TimerEnableChangedArgs> TimerEnableChanged = null;
         public event EventHandler<UpdateDetectedChangedArgs> UpdateDetected = null;
 
@@ -183,11 +185,46 @@ namespace Omawari
             window.ViewModel.Result = result;
             window.ShowDialog();
         }
-        
-        public void TestRule(Models.ScrapingRule scraper)
+
+        public void CreateRule()
+        {
+            var window = new Views.CreateScrapingRuleWindow();
+
+            if (window.ShowDialog() == true)
+            {
+                // ToDo: バリデーション
+
+                var rule = window.ViewModel.Rule;
+
+                if (string.IsNullOrEmpty(rule.Name))
+                {
+                    rule.Name = $"{rule.Target} @ {rule.Selectors}";
+                }
+
+                App.Instance.ScraperCollection.Add(window.ViewModel.Rule);
+                App.Instance.ScraperCollection.Save();
+            }
+        }
+
+        internal void ShowRule(ScrapingRule rule)
+        {
+            var window = new Views.ScrapingRuleWindow();
+            window.ViewModel.Rule = rule;
+            window.ShowDialog();
+            App.Instance.ScraperCollection.Save();
+        }
+
+        internal void DeleteRule(ScrapingRule rule)
+        {
+            // ToDo: 確認ダイアログ＋データを削除するか聞く
+            App.Instance.ScraperCollection.Remove(rule);
+            App.Instance.ScraperCollection.Save();
+        }
+
+        public void TestRule(Models.ScrapingRule rule)
         {
             var window = new Views.ScrapingTestWindow();
-            window.ViewModel.Rule = scraper;
+            window.ViewModel.Rule = rule;
             window.Loaded += async (s, a) => await window.ViewModel.TestAsync();
             window.ShowDialog();
         }

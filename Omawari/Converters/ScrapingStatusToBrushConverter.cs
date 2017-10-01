@@ -21,11 +21,10 @@ namespace Omawari.Converters
             switch (((ScrapingStatus)value))
             {
                 case ScrapingStatus.Pending: return Brushes.Gray;
-                case ScrapingStatus.Failed: return Brushes.Red;
                 case ScrapingStatus.Running: return Brushes.Blue;
                 case ScrapingStatus.Succeeded: return Brushes.Green;
                 case ScrapingStatus.Updated: return Brushes.Orange;
-                default: return Brushes.Black;
+                default: return Brushes.Red;
             }
         }
 
