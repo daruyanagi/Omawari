@@ -216,9 +216,18 @@ namespace Omawari
 
         internal void DeleteRule(ScrapingRule rule)
         {
-            // ToDo: 確認ダイアログ＋データを削除するか聞く
-            App.Instance.ScraperCollection.Remove(rule);
-            App.Instance.ScraperCollection.Save();
+            var window = new Views.DeleteScrapingRuleWindow();
+            window.ViewModel.Rule = rule;
+            if (window.ShowDialog() == true)
+            {
+                if (window.ViewModel.IsDeleteData)
+                {
+                    Directory.Delete(rule.Location, true);
+                }
+
+                App.Instance.ScraperCollection.Remove(rule);
+                App.Instance.ScraperCollection.Save();
+            }
         }
 
         public void TestRule(Models.ScrapingRule rule)

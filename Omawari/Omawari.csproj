@@ -107,12 +107,16 @@
     <Compile Include="Utilities\EnvironmentHelper.cs" />
     <Compile Include="Utilities\RelayCommand.cs" />
     <Compile Include="ViewModels\CreateScrapingRuleViewModel.cs" />
+    <Compile Include="ViewModels\DeleteScrapingRuleViewModel.cs" />
     <Compile Include="ViewModels\ScrapingRuleViewModel.cs" />
     <Compile Include="ViewModels\ScrapingResultViewModel.cs" />
     <Compile Include="ViewModels\ScrapingTestViewModel.cs" />
     <Compile Include="ViewModels\SettingViewModel.cs" />
     <Compile Include="Views\CreateScrapingRuleWindow.xaml.cs">
       <DependentUpon>CreateScrapingRuleWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DeleteScrapingRuleWindow.xaml.cs">
+      <DependentUpon>DeleteScrapingRuleWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ScrapingResultWindow.xaml.cs">
       <DependentUpon>ScrapingResultWindow.xaml</DependentUpon>
@@ -146,6 +150,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\CreateScrapingRuleWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DeleteScrapingRuleWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
