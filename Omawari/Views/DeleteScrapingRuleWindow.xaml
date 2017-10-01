@@ -1,0 +1,36 @@
+﻿<Window x:Class="Omawari.Views.DeleteScrapingRuleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Omawari.Views"
+        mc:Ignorable="d"
+        Title="Delete?" Height="180" Width="240">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBlock MaxWidth="200" TextWrapping="Wrap">
+                Do you really want to delete <Run Text="{Binding ViewModel.Rule.Name}" /> ?
+            </TextBlock>
+            <CheckBox IsChecked="{Binding ViewModel.IsDeleteData}">
+                Delete Data Folder, too.
+            </CheckBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button IsCancel="True"
+                    Command="{Binding ViewModel.NoCommand}"
+                    CommandParameter="{Binding}">No</Button>
+            <Button IsDefault="True"
+                    Command="{Binding ViewModel.YesCommand}"
+                    CommandParameter="{Binding}">Yes</Button>
+        </StackPanel>
+    </Grid>
+</Window>
