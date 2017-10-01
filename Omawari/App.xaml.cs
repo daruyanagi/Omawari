@@ -61,7 +61,7 @@ namespace Omawari
             TimerEnableChanged?.Invoke(this, new TimerEnableChangedArgs(Timer.Enabled));
         }
 
-        public void NotifyUpdateDetected(Models.Scraper scraper, Models.ScrapingResult result)
+        public void NotifyUpdateDetected(Models.ScrapingRule scraper, Models.ScrapingResult result)
         {
             Instance.UpdateLog.Insert(0, result);
             Instance.ShowInformation($"{scraper.Name} is updated.");
@@ -71,7 +71,7 @@ namespace Omawari
 
         public static App Instance { get { return App.Current as App; } }
 
-        public Models.ScraperCollection ScraperCollection { get; private set; }
+        public Models.ScrapingRuleCollection ScraperCollection { get; private set; }
         public AsyncObservableCollection<Models.ScrapingResult> UpdateLog { get; private set; }
         public Models.GlobalSettings GlobalSettings { get; set; }
         public int WorkingMinutes { get; set; } = 0;
@@ -102,7 +102,7 @@ namespace Omawari
             // プロパティの初期化
             GlobalSettings = Models.GlobalSettings.Load(SettingsPath);
             UpdateLog = new AsyncObservableCollection<Models.ScrapingResult>();
-            ScraperCollection = Models.ScraperCollection.Load(ScrapersPath);
+            ScraperCollection = Models.ScrapingRuleCollection.Load(ScrapersPath);
 
             // 通知アイコンの初期化
             NotifyIcon.Text = App.Instance.Name;
@@ -177,6 +177,21 @@ namespace Omawari
             NotifyIcon.ShowBalloonTip(duration, Instance.Name, message, Forms.ToolTipIcon.Error);
         }
 
+        public void ShowResult(Models.ScrapingResult result)
+        {
+            var window = new Views.ScrapingResultWindow();
+            window.ViewModel.Result = result;
+            window.ShowDialog();
+        }
+        
+        public void TestRule(Models.ScrapingRule scraper)
+        {
+            var window = new Views.ScrapingTestWindow();
+            window.ViewModel.Rule = scraper;
+            window.Loaded += async (s, a) => await window.ViewModel.TestAsync();
+            window.ShowDialog();
+        }
+
         public class PulsedEventArgs
         {
             public PulsedEventArgs(int workingMinutes)
@@ -199,13 +214,13 @@ namespace Omawari
 
         public class UpdateDetectedChangedArgs
         {
-            public UpdateDetectedChangedArgs(Models.Scraper scraper, Models.ScrapingResult result)
+            public UpdateDetectedChangedArgs(Models.ScrapingRule scraper, Models.ScrapingResult result)
             {
                 Scraper = scraper;
                 Result = result;
             }
 
-            Models.Scraper Scraper { get; set; }
+            Models.ScrapingRule Scraper { get; set; }
             Models.ScrapingResult Result { get; set; }
         }
     }

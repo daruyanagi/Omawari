@@ -5,8 +5,13 @@
              xmlns:c="clr-namespace:System.Collections;assembly=mscorlib"
              StartupUri="Views\MainWindow.xaml"
              Startup="Application_Startup"
+             xmlns:converters="clr-namespace:Omawari.Converters"
              Exit="Application_Exit">
     <Application.Resources>
+        <converters:ScrapingStatusToBrushConverter x:Key="ScrapingStatusToBrushConverter"/>
+        <converters:UtcToLocalTimeStringConverter x:Key="UtcToLocalTimeStringConverter"/>
+        <converters:TimeSpanToEasyReadStringConverter x:Key="TimeSpanToEasyReadStringConverter"/>
+
         <c:ArrayList x:Key="fileMenu" x:Shared="False">
             <MenuItem Command="{Binding ViewModel.StartCommand}">
                 <MenuItem.Header>
@@ -64,6 +69,9 @@
             <Setter Property="Margin" Value="4" />
         </Style>
         <Style TargetType="TextBlock">
+            <Setter Property="Padding" Value="4" />
+        </Style>
+        <Style TargetType="TabControl">
             <Setter Property="Padding" Value="4" />
         </Style>
     </Application.Resources>

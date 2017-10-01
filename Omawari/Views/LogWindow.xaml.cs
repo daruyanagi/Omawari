@@ -28,12 +28,12 @@ namespace Omawari.Views
             DataContext = this;
         }
 
-        public LogWindow(Scraper scraper) : this()
+        public LogWindow(ScrapingRule scraper) : this()
         {
             ViewModel.Scraper = scraper;
         }
 
-        public LogWindow(Scraper scraper, ScrapingResult result) : this(scraper)
+        public LogWindow(ScrapingRule scraper, ScrapingResult result) : this(scraper)
         {
             ViewModel.SelectedResult = result;
         }

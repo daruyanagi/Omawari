@@ -46,7 +46,9 @@ namespace Omawari.Views
 
         private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            ViewModel.LogSelectedScraperCommand.Execute(null);
+            // ViewModel.LogSelectedScraperCommand.Execute(null);
+            var window = new Views.ScrapingRuleWindow(ViewModel.SelectedItem);
+            window.ShowDialog();
         }
         
         private void listViewLog_MouseDoubleClick(object sender, MouseButtonEventArgs e)

@@ -14,7 +14,7 @@ namespace Omawari.Models
     using AngleSharp.Parser.Html;
     using System.Runtime.CompilerServices;
 
-    public class Scraper : BindableBase
+    public class ScrapingRule : BindableBase
     {
         private Uri target = default(Uri);
         private string selectors = default(string);
@@ -270,10 +270,10 @@ namespace Omawari.Models
             }));
         }
 
-        public Scraper Duplicate()
+        public ScrapingRule Duplicate()
         {
             // シリアライズ・デシリアライズでオブジェクトのコピーを作ったつもり
-            return JsonConvert.DeserializeObject<Scraper>((JsonConvert.SerializeObject(this)));
+            return JsonConvert.DeserializeObject<ScrapingRule>((JsonConvert.SerializeObject(this)));
         }
     }
 }

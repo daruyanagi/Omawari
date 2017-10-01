@@ -1,0 +1,50 @@
+﻿<Window x:Class="Omawari.Views.ScrapingTestWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Omawari.Views"
+        mc:Ignorable="d"
+        Title="{Binding ViewModel.Title}" Height="480" Width="640"
+        
+        xmlns:utilities="clr-namespace:Omawari.Utilities">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0">
+            Status
+        </Label>
+        <TextBox Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" 
+                 IsReadOnly="True"
+                 Foreground="{Binding ViewModel.Rule.Status, Converter={StaticResource ScrapingStatusToBrushConverter}}"
+                 Text="{Binding ViewModel.Rule.Status}" />
+        <Label Grid.Row="1" Grid.Column="0">
+            Result
+        </Label>
+        <TabControl Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="4" >
+            <TabItem Header="Raw Text">
+                <TextBox IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         Text="{Binding ViewModel.Result.Text}" />
+            </TabItem>
+            <TabItem Header="HTML Preview">
+                <WebBrowser utilities:WebBrowserExtension.Html="{Binding ViewModel.Result.Text}"  />
+            </TabItem>
+        </TabControl>
+
+        <Button Grid.Row="2" Grid.Column="2"
+                Command="{Binding ViewModel.OkCommand}"
+                CommandParameter="{Binding}">
+            OK
+        </Button>
+    </Grid>
+</Window>

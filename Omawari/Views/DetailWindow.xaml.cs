@@ -27,7 +27,7 @@ namespace Omawari.Views
             DataContext = this;
         }
 
-        public DetailWindow(Models.Scraper scraper) : this()
+        public DetailWindow(Models.ScrapingRule scraper) : this()
         {
             ViewModel.Scraper = scraper;
         }

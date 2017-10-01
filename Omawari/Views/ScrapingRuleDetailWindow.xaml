@@ -1,0 +1,112 @@
+﻿<Window x:Class="Omawari.Views.ScrapingRuleDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Omawari.Views"
+        mc:Ignorable="d"
+        Title="ScrapingRuleDetailWindow" Height="480" Width="640">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ToolBarTray Grid.Row="0">
+            <ToolBar>
+                <Button Command="{Binding ViewModel.ManualCheckCommand}">
+                    <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CC;" />
+                        Manual Check
+                    </TextBlock>
+                </Button>
+                <Separator />
+            </ToolBar>
+        </ToolBarTray>
+
+        <TabControl Grid.Row="1">
+            <TabItem Header="Basic">
+                <StackPanel DataContext="{Binding ViewModel.Rule}">
+                    <Label>Name</Label>
+                    <TextBox Text="{
+                        Binding ViewModel.Name, 
+                        Mode=TwoWay
+                    }" />
+                    <Label>Target URL</Label>
+                    <TextBox Text="{
+                        Binding ViewModel.Target, 
+                        Mode=TwoWay
+                    }" />
+                    <Label>CSS Selectors</Label>
+                    <TextBox Text="{
+                        Binding ViewModel.Selectors, 
+                        Mode=TwoWay
+                    }" />
+                    <Label>Interval (Minute)</Label>
+                    <TextBox Text="{
+                        Binding ViewModel.Interval, 
+                        Mode=TwoWay
+                    }" />
+                    <CheckBox Margin="8" IsChecked="{
+                        Binding ViewModel.IsDynamic,
+                        Mode=TwoWay}">
+                        Scrape Dynamic Page
+                    </CheckBox>
+                    <CheckBox Margin="8" IsChecked="{
+                        Binding ViewModel.IsEnabled,
+                        Mode=TwoWay}">
+                        Is Enabled
+                    </CheckBox>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Test">
+                <StackPanel DataContext="{Binding ViewModel.Rule}">
+                    <StackPanel>
+                        <Label>Target URL</Label>
+                        <TextBox Text="{
+                            Binding ViewModel.Target, 
+                            Mode=TwoWay
+                        }" />
+                        <Label>CSS Selectors</Label>
+                        <TextBox Text="{
+                            Binding ViewModel.Selectors, 
+                            Mode=TwoWay
+                        }" />
+                    </StackPanel>
+                    <Border Height="24" />
+                    <Button>
+                        Test
+                    </Button>
+                    <Border Height="24" />
+                    <Label>Status</Label>
+                    <TextBox Text="{
+                            Binding ViewModel.Target, 
+                            Mode=TwoWay
+                        }" />
+                    <Label>HTML</Label>
+                    <TextBox Text="{
+                            Binding ViewModel.Selectors, 
+                            Mode=TwoWay
+                        }" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Log">
+
+            </TabItem>
+        </TabControl>
+
+        <StackPanel Grid.Row="2" 
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal">
+            <Button Command="{Binding ViewModel.CancelCommand}"
+                    CommandParameter="{Binding}">
+                Cancel
+            </Button>
+            <Button Command="{Binding ViewModel.OKCommand}"
+                    CommandParameter="{Binding}">
+                OK
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

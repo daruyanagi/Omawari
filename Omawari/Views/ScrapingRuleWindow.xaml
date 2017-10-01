@@ -1,0 +1,160 @@
+﻿<Window x:Class="Omawari.Views.ScrapingRuleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Omawari.Views"
+        mc:Ignorable="d"
+        Title="{Binding ViewModel.Title}" Height="600" Width="800">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <ToolBarTray Grid.Row="0">
+                <ToolBar>
+                    <Button Command="{Binding ViewModel.ManualCheckCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CC;" />
+                        Manual Check
+                        </TextBlock>
+                    </Button>
+                    
+                    <Separator />
+
+                    <Button Command="{Binding ViewModel.OpenUrlCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE128;" />
+                        Open URL
+                        </TextBlock>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+        </Grid>
+        
+        <Grid Grid.Row="1">
+            <TabControl>
+                <TabItem Header="Basic Settings">
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0">
+                            Name
+                        </Label>
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Name, Mode=TwoWay}"/>
+
+                        <Label Grid.Row="1" Grid.Column="0">
+                            Target
+                        </Label>
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Target, Mode=TwoWay}"/>
+
+                        <Label Grid.Row="2" Grid.Column="0">
+                            Selectors
+                        </Label>
+                        <TextBox Grid.Row="2" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Selectors, Mode=TwoWay}"/>
+
+                        <Label Grid.Row="3" Grid.Column="0">
+                            Interval
+                        </Label>
+                        <TextBox Grid.Row="3" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Interval, Mode=TwoWay}"/>
+
+                        <DockPanel Grid.Row="4" Grid.Column="1" LastChildFill="False">
+                            <CheckBox Margin="8" IsChecked="{Binding ViewModel.Rule.IsDynamic}">
+                                Scrape Dynamic Page
+                            </CheckBox>
+                            <Button DockPanel.Dock="Right" 
+                        Command="{Binding ViewModel.TestCommand}">
+                                Test
+                            </Button>
+                        </DockPanel>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Update Logs">
+                    <ListView ItemsSource="{Binding ViewModel.Rule.UpdateResults}"
+                              MouseDoubleClick="ListView_MouseDoubleClick">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Status" Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Status}"
+                                                       Foreground="{Binding Status, Converter={StaticResource ScrapingStatusToBrushConverter}}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="ID" Width="100"
+                                    DisplayMemberBinding="{Binding Id}" />
+                                <GridViewColumn Header="Text" Width="100"
+                                    DisplayMemberBinding="{Binding TextSingleLine}" />
+                                <GridViewColumn Header="Started" Width="Auto"
+                                    DisplayMemberBinding="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                                <GridViewColumn Header="Updated" Width="Auto"
+                                    DisplayMemberBinding="{Binding CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                                <GridViewColumn Header="Duration" Width="Auto"
+                                    DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </TabItem>
+                
+                <TabItem Header="All Logs">
+                    <ListView ItemsSource="{Binding ViewModel.Rule.AllResults}"
+                              MouseDoubleClick="ListView_MouseDoubleClick">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Status" Width="Auto">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Status}"
+                                                       Foreground="{Binding Status, Converter={StaticResource ScrapingStatusToBrushConverter}}"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="ID" Width="100"
+                                    DisplayMemberBinding="{Binding Id}" />
+                                <GridViewColumn Header="Text" Width="100"
+                                    DisplayMemberBinding="{Binding TextSingleLine}" />
+                                <GridViewColumn Header="Started" Width="Auto"
+                                    DisplayMemberBinding="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                                <GridViewColumn Header="Updated" Width="Auto"
+                                    DisplayMemberBinding="{Binding CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                                <GridViewColumn Header="Duration" Width="Auto"
+                                    DisplayMemberBinding="{Binding Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </TabItem>
+            </TabControl>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Button Width="72" HorizontalAlignment="Right"
+                    Command="{Binding ViewModel.OkCommand}"
+                    CommandParameter="{Binding}">
+                OK
+            </Button>
+        </Grid>
+    </Grid>
+</Window>

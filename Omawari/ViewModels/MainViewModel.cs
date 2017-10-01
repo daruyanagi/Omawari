@@ -47,9 +47,9 @@ namespace Omawari.ViewModels
         private RelayCommand settingsCommand = null;
         private RelayCommand helpCommand = null;
 
-        private ScraperCollection items = App.Instance.ScraperCollection;
+        private ScrapingRuleCollection items = App.Instance.ScraperCollection;
         private ObservableCollection<Models.ScrapingResult> updateLog = App.Instance.UpdateLog;
-        private Scraper selectedItem = null;
+        private ScrapingRule selectedItem = null;
         private string workingTimeMessage = null;
         private string timerStatusMessage = null;
         private bool timerEnabled = false;
@@ -114,7 +114,8 @@ namespace Omawari.ViewModels
 
                 return addScraperCommand = new RelayCommand(() =>
                 {
-                    new DetailWindow(new Models.Scraper()).ShowDialog();
+                    // new DetailWindow(new Models.ScrapingRule()).ShowDialog();
+                    CreateScrapingRuleWindow.CreateScrapingRule();
                 });
             }
         }
@@ -214,7 +215,7 @@ namespace Omawari.ViewModels
             get { return $"{App.Instance.Name} v{App.Instance.Version}"; }
         }
 
-        public ScraperCollection Items
+        public ScrapingRuleCollection Items
         {
             get { return items; }
             set { SetProperty(ref items, value); }
@@ -226,7 +227,7 @@ namespace Omawari.ViewModels
             set { SetProperty(ref updateLog, value); }
         }
 
-        public Scraper SelectedItem
+        public ScrapingRule SelectedItem
         {
             get { return selectedItem; }
             set
