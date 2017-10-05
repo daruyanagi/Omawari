@@ -23,7 +23,7 @@
                         Manual Check
                         </TextBlock>
                     </Button>
-                    
+
                     <Separator />
 
                     <Button Command="{Binding ViewModel.OpenUrlCommand}">
@@ -32,65 +32,19 @@
                         Open URL
                         </TextBlock>
                     </Button>
+
+                    <Button Command="{Binding ViewModel.OpenDataFolderCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE197;" />
+                        Open Local Data Folder
+                        </TextBlock>
+                    </Button>
                 </ToolBar>
             </ToolBarTray>
         </Grid>
         
         <Grid Grid.Row="1">
             <TabControl>
-                <TabItem Header="Basic Settings">
-                    <Grid>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Label Grid.Row="0" Grid.Column="0">
-                            Name
-                        </Label>
-                        <TextBox Grid.Row="0" Grid.Column="1"
-                     Text="{Binding ViewModel.Rule.Name, Mode=TwoWay}"/>
-
-                        <Label Grid.Row="1" Grid.Column="0">
-                            Target
-                        </Label>
-                        <TextBox Grid.Row="1" Grid.Column="1"
-                     Text="{Binding ViewModel.Rule.Target, Mode=TwoWay}"/>
-
-                        <Label Grid.Row="2" Grid.Column="0">
-                            Selectors
-                        </Label>
-                        <TextBox Grid.Row="2" Grid.Column="1"
-                     Text="{Binding ViewModel.Rule.Selectors, Mode=TwoWay}"/>
-
-                        <Label Grid.Row="3" Grid.Column="0">
-                            Interval
-                        </Label>
-                        <TextBox Grid.Row="3" Grid.Column="1"
-                     Text="{Binding ViewModel.Rule.Interval, Mode=TwoWay}"/>
-
-                        <DockPanel Grid.Row="4" Grid.Column="1" LastChildFill="False">
-                            <CheckBox Margin="8" IsChecked="{Binding ViewModel.Rule.IsDynamic}">
-                                Scrape Dynamic Page
-                            </CheckBox>
-                            <Button DockPanel.Dock="Right" 
-                        Command="{Binding ViewModel.TestCommand}">
-                                Test
-                            </Button>
-                        </DockPanel>
-                    </Grid>
-                </TabItem>
-
                 <TabItem Header="Update Logs">
                     <ListView ItemsSource="{Binding ViewModel.Rule.UpdateResults}"
                               MouseDoubleClick="ListView_MouseDoubleClick">
@@ -146,6 +100,60 @@
                         </ListView.View>
                     </ListView>
                 </TabItem>
+                
+                <TabItem Header="Basic Settings">
+                    <Grid>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Grid.Row="0" Grid.Column="0">
+                            Name
+                        </Label>
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Name, Mode=TwoWay}"/>
+
+                        <Label Grid.Row="1" Grid.Column="0">
+                            Target
+                        </Label>
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Target, Mode=TwoWay}"/>
+
+                        <Label Grid.Row="2" Grid.Column="0">
+                            Selectors
+                        </Label>
+                        <TextBox Grid.Row="2" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Selectors, Mode=TwoWay}"/>
+
+                        <Label Grid.Row="3" Grid.Column="0">
+                            Interval
+                        </Label>
+                        <TextBox Grid.Row="3" Grid.Column="1"
+                     Text="{Binding ViewModel.Rule.Interval, Mode=TwoWay}"/>
+
+                        <DockPanel Grid.Row="4" Grid.Column="1" LastChildFill="False">
+                            <CheckBox Margin="8" IsChecked="{Binding ViewModel.Rule.IsDynamic}">
+                                Scrape Dynamic Page
+                            </CheckBox>
+                            <Button DockPanel.Dock="Right" 
+                        Command="{Binding ViewModel.TestCommand}">
+                                Test
+                            </Button>
+                        </DockPanel>
+                    </Grid>
+                </TabItem>
+
             </TabControl>
         </Grid>
 

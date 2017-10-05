@@ -16,10 +16,53 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
+        <Grid Grid.Row="0">
+            <ToolBarTray>
+                <ToolBar>
+                    <Button Command="{Binding ViewModel.ShowPreviousLogCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xE892;" />
+                        Previous
+                        </TextBlock>
+                    </Button>
+                    <Button Command="{Binding ViewModel.ShowNextLogCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xE893;" />
+                        Next
+                        </TextBlock>
+                    </Button>
+                    
+                    <Button Command="{Binding ViewModel.ShowParentRuleCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xE81C;" />
+                        Show Other Logs
+                        </TextBlock>
+                    </Button>
+
+                    <Separator />
+
+                    <Button Command="{Binding ViewModel.OpenUrlCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE128;" />
+                        Open URL
+                        </TextBlock>
+                    </Button>
+
+                    <Button Command="{Binding ViewModel.OpenDataFileCommand}">
+                        <TextBlock>
+                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1A5;" />
+                        Open Local Data File in Explorer
+                        </TextBlock>
+                    </Button>
+                </ToolBar>
+            </ToolBarTray>
+        </Grid>
+
         <TabControl Grid.Row="1">
             <TabItem Header="Information">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -32,44 +75,51 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
+<!--
                     <Label Grid.Row="0" Grid.Column="0">
                         ID
                     </Label>
                     <TextBox Grid.Row="0" Grid.Column="1"
                              IsReadOnly="True"
                              Text="{Binding ViewModel.Result.Id}"/>
-
+-->
                     <Label Grid.Row="1" Grid.Column="0">
-                        Target
+                        Status
                     </Label>
                     <TextBox Grid.Row="1" Grid.Column="1"
                              IsReadOnly="True"
-                             Text="{Binding ViewModel.Result.Target}"/>
+                             Text="{Binding ViewModel.Result.Status}"/>
 
                     <Label Grid.Row="2" Grid.Column="0">
-                        Selectors
+                        Target
                     </Label>
                     <TextBox Grid.Row="2" Grid.Column="1"
                              IsReadOnly="True"
-                             Text="{Binding ViewModel.Result.Selector}"/>
+                             Text="{Binding ViewModel.Result.Target}"/>
 
                     <Label Grid.Row="3" Grid.Column="0">
-                        Started
+                        Selectors
                     </Label>
                     <TextBox Grid.Row="3" Grid.Column="1"
-                             Text="{Binding ViewModel.Result.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
+                             IsReadOnly="True"
+                             Text="{Binding ViewModel.Result.Selector}"/>
 
                     <Label Grid.Row="4" Grid.Column="0">
-                        Completed
+                        Started
                     </Label>
                     <TextBox Grid.Row="4" Grid.Column="1"
-                             Text="{Binding ViewModel.Result.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
+                             Text="{Binding ViewModel.Result.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
 
                     <Label Grid.Row="5" Grid.Column="0">
-                        Duration
+                        Completed
                     </Label>
                     <TextBox Grid.Row="5" Grid.Column="1"
+                             Text="{Binding ViewModel.Result.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}"/>
+
+                    <Label Grid.Row="6" Grid.Column="0">
+                        Duration
+                    </Label>
+                    <TextBox Grid.Row="6" Grid.Column="1"
                              Text="{Binding ViewModel.Result.Duration, Mode=OneWay}"/>
                 </Grid>
             </TabItem>

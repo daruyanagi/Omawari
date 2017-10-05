@@ -24,7 +24,7 @@ namespace Omawari.Models
         private int interval = App.Instance.GlobalSettings.DefaultInterval; // 分単位
         private bool isDynamic = false;
         private bool isEnabled = true;
-        private List<ScrapingResult> allResult = null;
+        private List<ScrapingResult> allResults = null;
 
         protected override void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -108,7 +108,7 @@ namespace Omawari.Models
         [JsonIgnore]
         public List<ScrapingResult> AllResults
         {
-            get { return allResult; }
+            get { return allResults; }
         }
 
         [JsonIgnore]
@@ -116,7 +116,14 @@ namespace Omawari.Models
         {
             get
             {
-                return AllResults?.GroupBy(_ => _.Text)
+                return AllResults?
+                    .Where(_ =>
+                        _.Status.ToLower() == "success" ||
+                        _.Status.ToLower() == "succeeded" ||
+                        _.Status.ToLower() == "update" ||
+                        _.Status.ToLower() == "updated" ||
+                        _.Status.ToLower() == "new") // 失敗は弾く v1.4 追加
+                    .GroupBy(_ => _.Text)
                     .Select(_ => _.OrderByDescending(__ => __.CompletedAt).Last())
                     .ToList();
             }
@@ -127,14 +134,16 @@ namespace Omawari.Models
             if (!IsEnabled) return;
             
             // 新しい結果を保存する前に古い結果を保管
-            var old_result = LastResult; 
+            var old_result = LastUpdateResult; 
 
             // 新しい結果を取得・ファイルとして保存
             var result = await RunAsync();
             if (result == null) return;
+            else if (result.Status == "fail") result.Status = "Failed";
             else if (string.IsNullOrEmpty(result.Text)) result.Status = "Empty";
             else if (old_result == null) result.Status = "New";
             else if (old_result.Text != result.Text) result.Status = "Updated";
+            else result.Status = "No Changed";
             File.WriteAllText(result.Location, JsonConvert.SerializeObject(result, Formatting.Indented));
 
             // プロパティ更新。更新チェックの先にやっておかないと、App.Updated() がイヤんなことになる
@@ -144,16 +153,24 @@ namespace Omawari.Models
             {
                 case "succeeded":
                 case "success":
+                    // 実質廃止になっているはず ToDo: うまく動いていたら次のバージョンで削除する
                     Status = ScrapingStatus.Succeeded;
+                    break;
+                case "no changed":
+                    Status = ScrapingStatus.NoChanged;
+                    break;
+                case "new":
+                    Status = ScrapingStatus.New;
+                    App.Instance.NotifyUpdateDetected(this, result);
+                    break;
+                case "update":
+                case "updated":
+                    Status = ScrapingStatus.Updated;
+                    App.Instance.NotifyUpdateDetected(this, result);
                     break;
                 case "empty":
                     Status = ScrapingStatus.Empty;
                     // ToDo: 失敗イベントを新設する
-                    break;
-                case "new":
-                case "updated":
-                    Status = ScrapingStatus.Updated;
-                    App.Instance.NotifyUpdateDetected(this, result);
                     break;
                 case "fail":
                 case "failed":
@@ -170,15 +187,26 @@ namespace Omawari.Models
         {
             var files = Directory.EnumerateFiles(Location);
 
-            allResult = await Task.Factory.StartNew<List<ScrapingResult>>(() =>
+            await Task.Factory.StartNew(async () =>
             {
-                // ToDo: エラーハンドリング？
-                return Directory
-                  .EnumerateFiles(Location)
-                  .Select(_ => File.ReadAllText(_))
-                  .Select(_ => JsonConvert.DeserializeObject<ScrapingResult>(_))
-                  .OrderByDescending(_ => _.CompletedAt)
-                  .ToList();
+                while (true)
+                {
+                    try
+                    {
+                        allResults = Directory
+                          .EnumerateFiles(Location)
+                          .Select(_ => File.ReadAllText(_))
+                          .Select(_ => JsonConvert.DeserializeObject<ScrapingResult>(_))
+                          .OrderByDescending(_ => _.CompletedAt)
+                          .ToList();
+
+                        return;
+                    }
+                    catch
+                    {
+                        await Task.Delay(1000);
+                    }
+                }
             });
             
             OnPropertyChanged(nameof(AllResults));

@@ -14,5 +14,7 @@ namespace Omawari.Models
         Failed,
         Updated,
         Empty,
+        New,
+        NoChanged,
     }
 }
