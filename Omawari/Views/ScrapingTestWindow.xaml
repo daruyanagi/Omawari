@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:Omawari.Views"
         mc:Ignorable="d"
         Title="{Binding ViewModel.Title}" Height="480" Width="640"
+        WindowStartupLocation="CenterOwner"
         
         xmlns:utilities="clr-namespace:Omawari.Utilities">
     <Grid Margin="12">

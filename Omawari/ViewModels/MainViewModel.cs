@@ -24,7 +24,7 @@ namespace Omawari.ViewModels
                 TimerEnabled = a.TimerEnabled;
                 StartCommand.RaiseCanExecuteChanged();
                 StopCommand.RaiseCanExecuteChanged();
-                TimerStatusMessage = $"Timer Enabled: {TimerEnabled}";
+                TimerStatusMessage = "Web Chacker: " + (TimerEnabled ? "Enabled" : "Disabled");
             };
 
             app.Pulsed += (s, a) =>
@@ -74,7 +74,7 @@ namespace Omawari.ViewModels
                 if (stopCommand != null) return stopCommand;
 
                 return stopCommand = new RelayCommand(
-                    () =>  App.Instance.Stop(),
+                    () => App.Instance.Stop(),
                     () => TimerEnabled
                 );
             }
@@ -86,10 +86,9 @@ namespace Omawari.ViewModels
             {
                 if (exitCommand != null) return exitCommand;
 
-                return exitCommand = new RelayCommand(() =>
-                {
-                    App.Current.Shutdown();
-                });
+                return exitCommand = new RelayCommand(
+                    () => App.Current.Shutdown()
+                );
             }
         }
 
@@ -99,10 +98,9 @@ namespace Omawari.ViewModels
             {
                 if (helpCommand != null) return helpCommand;
 
-                return helpCommand = new RelayCommand(() =>
-                {
-                    System.Diagnostics.Process.Start("http://blog.daruyanagi.jp/archive/category/Omawari");
-                });
+                return helpCommand = new RelayCommand(
+                    () => System.Diagnostics.Process.Start("http://blog.daruyanagi.jp/archive/category/Omawari")
+                );
             }
         }
 
@@ -112,7 +110,9 @@ namespace Omawari.ViewModels
             {
                 if (addScraperCommand != null) return addScraperCommand;
 
-                return addScraperCommand = new RelayCommand(() => App.Instance.CreateRule());
+                return addScraperCommand = new RelayCommand(
+                    () => App.Instance.CreateRule()
+                );
             }
         }
 
@@ -148,11 +148,14 @@ namespace Omawari.ViewModels
             {
                 if (checkSelectedScraperCommand != null) return checkSelectedScraperCommand;
 
-                return checkSelectedScraperCommand = new RelayCommand(async () =>
-                {
-                    if (SelectedItem == null) return;
-                    await SelectedItem.CheckAsync();
-                }, () => SelectedItem != null);
+                return checkSelectedScraperCommand = new RelayCommand(
+                    async () =>
+                    {
+                        if (SelectedItem == null) return;
+                        await SelectedItem.CheckAsync();
+                    }, 
+                    () => SelectedItem != null
+                );
             }
         }
 
@@ -162,10 +165,9 @@ namespace Omawari.ViewModels
             {
                 if (checkAllScraperCommand != null) return checkAllScraperCommand;
 
-                return checkAllScraperCommand = new RelayCommand(() =>
-                {
-                    Parallel.ForEach(Items, async (item) => { await item.CheckAsync(); });
-                });
+                return checkAllScraperCommand = new RelayCommand(
+                    () => Parallel.ForEach(Items, async (item) => await item.CheckAsync())
+                );
             }
         }
 
@@ -175,12 +177,10 @@ namespace Omawari.ViewModels
             {
                 if (logSelectedScraperCommand != null) return logSelectedScraperCommand;
 
-                return logSelectedScraperCommand = new RelayCommand(() =>
-                {
-                    if (SelectedItem == null) return;
-
-                    new LogWindow(SelectedItem).ShowDialog();
-                }, () => SelectedItem != null);
+                return logSelectedScraperCommand = new RelayCommand(
+                    () => new LogWindow(SelectedItem).ShowDialog(),
+                    () => SelectedItem != null
+                );
             }
         }
 
@@ -190,10 +190,9 @@ namespace Omawari.ViewModels
             {
                 if (settingsCommand != null) return settingsCommand;
 
-                return settingsCommand = new RelayCommand(() =>
-                {
-                    new SettingsWindow().ShowDialog();
-                });
+                return settingsCommand = new RelayCommand(
+                    () => new SettingsWindow().ShowDialog()
+                );
             }
         }
 

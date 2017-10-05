@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Omawari.Views"
         mc:Ignorable="d"
-        Title="Delete?" Height="180" Width="240">
+        Title="Delete?" Height="240" Width="360"
+        WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -14,10 +15,11 @@
 
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center">
-            <TextBlock MaxWidth="200" TextWrapping="Wrap">
+            <TextBlock MaxWidth="300" TextWrapping="Wrap" Margin="24, 12">
                 Do you really want to delete <Run Text="{Binding ViewModel.Rule.Name}" /> ?
             </TextBlock>
-            <CheckBox IsChecked="{Binding ViewModel.IsDeleteData}">
+            <CheckBox Margin="24, 12" 
+                      IsChecked="{Binding ViewModel.IsDeleteData}">
                 Delete Data Folder, too.
             </CheckBox>
         </StackPanel>

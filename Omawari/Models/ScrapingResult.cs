@@ -32,7 +32,7 @@ namespace Omawari.Models
 
         public string Diff(ScrapingResult result)
         {
-            if (result == null) return "Target is null";
+            if (result?.Text == null) return "Target is null";
 
             if (result?.Text == Text) return "Defference is not find.";
 

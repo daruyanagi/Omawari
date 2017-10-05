@@ -45,6 +45,7 @@ namespace Omawari
 
         private Forms.Timer Timer = new Forms.Timer();
         private Forms.NotifyIcon NotifyIcon = new Forms.NotifyIcon();
+        private FileSystemWatcher Watcher;
 
         public event EventHandler<PulsedEventArgs> Pulsed = null;
 
@@ -126,6 +127,30 @@ namespace Omawari
             Timer.Interval = 60 * 1000;
             Timer.Tick += (s, a) => { OnPulsed(); };
             if (GlobalSettings.AutoStart) Start();
+
+            // クラウドストレージなどを介した複数環境での利用を考慮したファイルシステム監視
+            Watcher = new FileSystemWatcher();
+            Watcher.Path = DataFolder;
+            Watcher.NotifyFilter = NotifyFilters.FileName;
+            Watcher.IncludeSubdirectories = true;
+            Watcher.Filter = "*.json";
+            Watcher.Created += async (s, a) =>
+            {
+                var id = Path.GetDirectoryName(a.FullPath).Split('\\').Last();
+                var rule = ScraperCollection.FirstOrDefault(_ => _.Id.ToString() == id);
+                if (rule == null) return;
+                var index = ScraperCollection.IndexOf(rule);
+                await ScraperCollection[index].UpdateResultsAsync();
+            };
+            Watcher.Deleted += async (s, a) =>
+            {
+                var id = Path.GetDirectoryName(a.FullPath).Split('\\').Last();
+                var rule = ScraperCollection.FirstOrDefault(_ => _.Id.ToString() == id);
+                if (rule == null) return;
+                var index = ScraperCollection.IndexOf(rule);
+                await ScraperCollection[index].UpdateResultsAsync();
+            };
+            Watcher.EnableRaisingEvents = true;
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)
@@ -181,9 +206,15 @@ namespace Omawari
 
         public void ShowResult(Models.ScrapingResult result)
         {
-            var window = new Views.ScrapingResultWindow();
+            var window = App.Current.Windows
+                .OfType<Views.ScrapingResultWindow>()
+                .FirstOrDefault(_ => _.ViewModel.Result.Id == result.Id);
+
+            if (window != null) { window.Activate(); return; }
+
+            window = new Views.ScrapingResultWindow();
             window.ViewModel.Result = result;
-            window.ShowDialog();
+            window.Show();
         }
 
         public void CreateRule()
@@ -208,10 +239,24 @@ namespace Omawari
 
         internal void ShowRule(ScrapingRule rule)
         {
-            var window = new Views.ScrapingRuleWindow();
+            var window = App.Current.Windows
+                .OfType<Views.ScrapingRuleWindow>()
+                .FirstOrDefault(_ => _.ViewModel.Rule.Id == rule.Id);
+
+            if (window != null) { window.Activate(); return; }
+
+            window = new Views.ScrapingRuleWindow();
             window.ViewModel.Rule = rule;
-            window.ShowDialog();
-            App.Instance.ScraperCollection.Save();
+            window.Show();
+
+            try
+            {
+                App.Instance.ScraperCollection.Save();
+            }
+            catch
+            {
+                // アプリ終了時にクラッシュするケースを握りつぶす（v1.4 追加
+            }
         }
 
         internal void DeleteRule(ScrapingRule rule)

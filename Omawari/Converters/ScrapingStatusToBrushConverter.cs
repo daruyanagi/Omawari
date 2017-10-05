@@ -22,7 +22,8 @@ namespace Omawari.Converters
             {
                 case ScrapingStatus.Pending: return Brushes.Gray;
                 case ScrapingStatus.Running: return Brushes.Blue;
-                case ScrapingStatus.Succeeded: return Brushes.Green;
+                case ScrapingStatus.Succeeded: return Brushes.Green; // ToDo: 実質廃止
+                case ScrapingStatus.NoChanged: return Brushes.Green;
                 case ScrapingStatus.Updated: return Brushes.Orange;
                 default: return Brushes.Red;
             }

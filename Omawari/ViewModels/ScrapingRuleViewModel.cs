@@ -13,6 +13,7 @@ namespace Omawari.ViewModels
         private ScrapingRule rule = null;
         private RelayCommand manualCheckCommand = null;
         private RelayCommand openUrlCommand = null;
+        private RelayCommand openDataFolderCommand = null;
         private RelayCommand testCommand = null;
         private RelayCommand<Window> okCommand = null;
 
@@ -49,6 +50,19 @@ namespace Omawari.ViewModels
                 return openUrlCommand = new RelayCommand(() =>
                 {
                     System.Diagnostics.Process.Start(Rule.Target.ToString());
+                });
+            }
+        }
+
+        public RelayCommand OpenDataFolderCommand
+        {
+            get
+            {
+                if (openDataFolderCommand != null) return openDataFolderCommand;
+
+                return openDataFolderCommand = new RelayCommand(() =>
+                {
+                    System.Diagnostics.Process.Start(Rule.Location.ToString());
                 });
             }
         }
