@@ -111,6 +111,7 @@
     <Compile Include="Utilities\ActionHelper.cs" />
     <Compile Include="Utilities\AsyncObservableCollection.cs" />
     <Compile Include="Utilities\BindableBase.cs" />
+    <Compile Include="Utilities\PathHelper.cs" />
     <Compile Include="Utilities\ThrottoleAction.cs" />
     <Compile Include="Utilities\EnvironmentHelper.cs" />
     <Compile Include="Utilities\ObservableCollectionHelper.cs" />
