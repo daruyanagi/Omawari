@@ -12,7 +12,6 @@ using System.Windows;
 
 namespace Omawari
 {
-    using Omawari.Models;
     using Forms = System.Windows.Forms;
 
     /// <summary>
@@ -48,9 +47,9 @@ namespace Omawari
         private FileSystemWatcher Watcher;
 
         public event EventHandler<PulsedEventArgs> Pulsed = null;
-
         public event EventHandler<TimerEnableChangedArgs> TimerEnableChanged = null;
-        public event EventHandler<UpdateDetectedChangedArgs> UpdateDetected = null;
+        public event EventHandler<DetectedEventArgs> UpdateDetected = null;
+        public event EventHandler<DetectedEventArgs> ErrorDetected = null;
 
         protected void OnPulsed()
         {
@@ -66,16 +65,21 @@ namespace Omawari
 
         public void NotifyUpdateDetected(Models.ScrapingRule scraper, Models.ScrapingResult result)
         {
-            Instance.UpdateLog.Insert(0, result);
             Instance.ShowInformation($"{scraper.Name} is updated.");
 
-            UpdateDetected?.Invoke(this, new UpdateDetectedChangedArgs(scraper, result));
+            UpdateDetected?.Invoke(this, new DetectedEventArgs(scraper, result));
+        }
+
+        public void NotifyErrorDetected(Models.ScrapingRule scraper, Models.ScrapingResult result)
+        {
+            Instance.ShowInformation($"{scraper.Name} is failed.");
+
+            ErrorDetected?.Invoke(this, new DetectedEventArgs(scraper, result));
         }
 
         public static App Instance { get { return App.Current as App; } }
 
         public Models.ScrapingRuleCollection ScraperCollection { get; private set; }
-        public AsyncObservableCollection<Models.ScrapingResult> UpdateLog { get; private set; }
         public Models.GlobalSettings GlobalSettings { get; set; }
         public int WorkingMinutes { get; set; } = 0;
         public string DataFolder { get; set; }
@@ -104,7 +108,6 @@ namespace Omawari
 
             // プロパティの初期化
             GlobalSettings = Models.GlobalSettings.Load(SettingsPath);
-            UpdateLog = new AsyncObservableCollection<Models.ScrapingResult>();
             ScraperCollection = Models.ScrapingRuleCollection.Load(ScrapersPath);
 
             // 通知アイコンの初期化
@@ -156,7 +159,7 @@ namespace Omawari
         private void Application_Exit(object sender, ExitEventArgs e)
         {
             NotifyIcon.Visible = false;
-            ScraperCollection.Save();
+            // ScraperCollection.Save(); <-- 読み込みミスって保存したら全部消えてまうやん！
             GlobalSettings.Save();
         }
 
@@ -212,14 +215,22 @@ namespace Omawari
 
             if (window != null) { window.Activate(); return; }
 
-            window = new Views.ScrapingResultWindow();
-            window.ViewModel.Result = result;
+            window = new Views.ScrapingResultWindow(result)
+            {
+                Owner = MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
+
             window.Show();
         }
 
         public void CreateRule()
         {
-            var window = new Views.CreateScrapingRuleWindow();
+            var window = new Views.CreateScrapingRuleWindow()
+            {
+                Owner = MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
 
             if (window.ShowDialog() == true)
             {
@@ -237,7 +248,7 @@ namespace Omawari
             }
         }
 
-        internal void ShowRule(ScrapingRule rule)
+        internal void ShowRule(Models.ScrapingRule rule)
         {
             var window = App.Current.Windows
                 .OfType<Views.ScrapingRuleWindow>()
@@ -245,8 +256,12 @@ namespace Omawari
 
             if (window != null) { window.Activate(); return; }
 
-            window = new Views.ScrapingRuleWindow();
-            window.ViewModel.Rule = rule;
+            window = new Views.ScrapingRuleWindow(rule)
+            {
+                Owner = MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
+
             window.Show();
 
             try
@@ -259,10 +274,14 @@ namespace Omawari
             }
         }
 
-        internal void DeleteRule(ScrapingRule rule)
+        internal void DeleteRule(Models.ScrapingRule rule)
         {
-            var window = new Views.DeleteScrapingRuleWindow();
-            window.ViewModel.Rule = rule;
+            var window = new Views.DeleteScrapingRuleWindow(rule)
+            {
+                Owner = MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
+
             if (window.ShowDialog() == true)
             {
                 if (window.ViewModel.IsDeleteData)
@@ -277,9 +296,23 @@ namespace Omawari
 
         public void TestRule(Models.ScrapingRule rule)
         {
-            var window = new Views.ScrapingTestWindow();
-            window.ViewModel.Rule = rule;
+            var window = new Views.ScrapingTestWindow(rule)
+            {
+                Owner = MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
             window.Loaded += async (s, a) => await window.ViewModel.TestAsync();
+            window.ShowDialog();
+        }
+
+        internal void ShowSettings()
+        {
+            var window = new Views.SettingsWindow()
+            {
+                Owner = MainWindow,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
+
             window.ShowDialog();
         }
 
@@ -303,9 +336,9 @@ namespace Omawari
             public bool TimerEnabled { get; set; }
         }
 
-        public class UpdateDetectedChangedArgs
+        public class DetectedEventArgs
         {
-            public UpdateDetectedChangedArgs(Models.ScrapingRule scraper, Models.ScrapingResult result)
+            public DetectedEventArgs(Models.ScrapingRule scraper, Models.ScrapingResult result)
             {
                 Scraper = scraper;
                 Result = result;

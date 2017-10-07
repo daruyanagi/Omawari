@@ -21,10 +21,15 @@ namespace Omawari.Views
     {
         public ViewModels.DeleteScrapingRuleViewModel ViewModel { get; } = new ViewModels.DeleteScrapingRuleViewModel();
 
-        public DeleteScrapingRuleWindow()
+        private DeleteScrapingRuleWindow()
         {
             InitializeComponent();
             DataContext = this;
+        }
+
+        public DeleteScrapingRuleWindow(Models.ScrapingRule rule) : this()
+        {
+            ViewModel.Rule = rule;
         }
     }
 }

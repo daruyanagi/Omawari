@@ -160,11 +160,6 @@
         <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
-            <Button IsCancel="True"
-                    Command="{Binding ViewModel.CancelCommand}"
-                    CommandParameter="{Binding}">
-                Cancel
-            </Button>
             <Button IsDefault="True"
                     Command="{Binding ViewModel.OkCommand}"
                     CommandParameter="{Binding}">

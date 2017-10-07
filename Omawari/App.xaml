@@ -53,6 +53,14 @@
                     </TextBlock>
                 </MenuItem.Header>
             </MenuItem>
+            <MenuItem Command="{Binding ViewModel.CheckUpdateCommand}">
+                <MenuItem.Header>
+                    <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xE898;" />
+                        Check Update
+                    </TextBlock>
+                </MenuItem.Header>
+            </MenuItem>
         </c:ArrayList>
 
         <Style TargetType="Button">

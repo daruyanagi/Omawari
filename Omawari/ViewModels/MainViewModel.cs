@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Omawari.ViewModels
 {
-    using Omawari.Models;
-    using Omawari.Views;
-    using System.Collections.ObjectModel;
-    using System.IO;
-    using System.Reflection;
-    using System.Windows;
-
     public class MainViewModel : BindableBase
     {
         public MainViewModel()
@@ -38,7 +32,6 @@ namespace Omawari.ViewModels
         private RelayCommand addScraperCommand = null;
         private RelayCommand editScraperCommand = null;
         private RelayCommand removeScraperCommand = null;
-        private RelayCommand logSelectedScraperCommand = null;
         private RelayCommand checkSelectedScraperCommand;
         private RelayCommand startCommand = null;
         private RelayCommand stopCommand = null;
@@ -47,12 +40,12 @@ namespace Omawari.ViewModels
         private RelayCommand settingsCommand = null;
         private RelayCommand helpCommand = null;
 
-        private ScrapingRuleCollection items = App.Instance.ScraperCollection;
-        private ObservableCollection<Models.ScrapingResult> updateLog = App.Instance.UpdateLog;
-        private ScrapingRule selectedItem = null;
+        private Models.ScrapingRuleCollection items = App.Instance.ScraperCollection;
+        private Models.ScrapingRule selectedItem = null;
         private string workingTimeMessage = null;
         private string timerStatusMessage = null;
         private bool timerEnabled = false;
+        private RelayCommand checkUpdateCommand;
 
         public RelayCommand StartCommand
         {
@@ -166,20 +159,7 @@ namespace Omawari.ViewModels
                 if (checkAllScraperCommand != null) return checkAllScraperCommand;
 
                 return checkAllScraperCommand = new RelayCommand(
-                    () => Parallel.ForEach(Items, async (item) => await item.CheckAsync())
-                );
-            }
-        }
-
-        public RelayCommand LogSelectedScraperCommand
-        {
-            get
-            {
-                if (logSelectedScraperCommand != null) return logSelectedScraperCommand;
-
-                return logSelectedScraperCommand = new RelayCommand(
-                    () => new LogWindow(SelectedItem).ShowDialog(),
-                    () => SelectedItem != null
+                    () => Parallel.ForEach(Rules, async (item) => await item.CheckAsync())
                 );
             }
         }
@@ -191,7 +171,57 @@ namespace Omawari.ViewModels
                 if (settingsCommand != null) return settingsCommand;
 
                 return settingsCommand = new RelayCommand(
-                    () => new SettingsWindow().ShowDialog()
+                    () => App.Instance.ShowSettings()
+                );
+            }
+        }
+
+        public RelayCommand CheckUpdateCommand
+        {
+            get
+            {
+                if (checkUpdateCommand != null) return checkUpdateCommand;
+
+                return checkUpdateCommand = new RelayCommand(
+                    () =>
+                    {
+                        try
+                        {
+                            if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
+                            {
+                                var deployment = System.Deployment.Application.ApplicationDeployment.CurrentDeployment;
+                                deployment.UpdateCompleted += (s, a) =>
+                                {
+                                    System.Windows.MessageBox.Show(
+                                        "Update is completed. Please restart application.",
+                                        "ClickOnce Update", 
+                                        System.Windows.MessageBoxButton.OK, 
+                                        System.Windows.MessageBoxImage.Information
+                                    );
+                                };
+
+                                var info = deployment.CheckForDetailedUpdate();
+                                if (info.UpdateAvailable)
+                                {
+                                    deployment.UpdateAsync();
+                                }
+                            }
+
+                        }
+                        catch (Exception exeption)
+                        {
+                            System.Windows.MessageBox.Show(
+                                exeption.Message,
+                                "ClickOnce Update",
+                                System.Windows.MessageBoxButton.OK,
+                                System.Windows.MessageBoxImage.Error
+                            );
+                        }
+                    },
+                    () =>
+                    {
+                        return System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed;
+                    }
                 );
             }
         }
@@ -201,19 +231,18 @@ namespace Omawari.ViewModels
             get { return $"{App.Instance.Name} v{App.Instance.Version}"; }
         }
 
-        public ScrapingRuleCollection Items
+        public Models.ScrapingRuleCollection Rules
         {
             get { return items; }
             set { SetProperty(ref items, value); }
         }
-
-        public ObservableCollection<Models.ScrapingResult> UpdateLog
+        
+        public ObservableCollection<Models.ScrapingResult> AllLogs
         {
-            get { return updateLog; }
-            set { SetProperty(ref updateLog, value); }
+            get { return Models.LogRepository.Instance.Items; }
         }
 
-        public ScrapingRule SelectedItem
+        public Models.ScrapingRule SelectedItem
         {
             get { return selectedItem; }
             set
@@ -223,7 +252,6 @@ namespace Omawari.ViewModels
                 EditScraperCommand.RaiseCanExecuteChanged();
                 RemoveScraperCommand.RaiseCanExecuteChanged();
                 CheckSelectedScraperCommand.RaiseCanExecuteChanged();
-                LogSelectedScraperCommand.RaiseCanExecuteChanged();
             }
         }
 

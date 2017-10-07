@@ -21,10 +21,15 @@ namespace Omawari.Views
     {
         public ViewModels.ScrapingRuleViewModel ViewModel { get; } = new ViewModels.ScrapingRuleViewModel();
 
-        public ScrapingRuleWindow()
+        private ScrapingRuleWindow()
         {
             InitializeComponent();
             DataContext = this;
+        }
+
+        public ScrapingRuleWindow(Models.ScrapingRule rule) : this()
+        {
+            ViewModel.Rule = rule;
         }
 
         private void ListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)

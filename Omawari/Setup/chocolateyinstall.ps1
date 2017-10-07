@@ -1,6 +1,6 @@
-﻿$toolsDir   = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-$packageName = "Omawari"
-$target = Join-Path $toolsDir "$($packageName).exe"
-$shortcut = [Environment]::GetFolderPath("Desktop")
-$shortcut = Join-Path $shortcut "Omawari.lnk"
-Install-ChocolateyShortcut -ShortcutFilePath $shortcut -TargetPath $target
+﻿$packageName = 'omawari'
+$fileType = 'exe'
+$url = 'https://yanagi.blob.core.windows.net/clickonce-omawari/setup.exe'
+$url64 = 'https://yanagi.blob.core.windows.net/clickonce-omawari/setup.exe'
+
+Install-ChocolateyPackage $packageName $fileType $url $url64

@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Omawari.Views"
         mc:Ignorable="d"
-        Title="Delete?" Height="240" Width="360"
-        WindowStartupLocation="CenterOwner">
+        Title="Delete?" Height="240" Width="360">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
