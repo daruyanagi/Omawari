@@ -21,10 +21,15 @@ namespace Omawari.Views
     {
         public ViewModels.ScrapingResultViewModel ViewModel { get; } = new ViewModels.ScrapingResultViewModel();
 
-        public ScrapingResultWindow()
+        private ScrapingResultWindow()
         {
             InitializeComponent();
             DataContext = this;
+        }
+
+        public ScrapingResultWindow(Models.ScrapingResult result) : this()
+        {
+            ViewModel.Result = result;
         }
     }
 }

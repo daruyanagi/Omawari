@@ -26,7 +26,20 @@ namespace Omawari.Models
         [JsonIgnore]
         public TimeSpan Duration { get { return CompletedAt - StartedAt; } }
         [JsonIgnore]
-        public string Location { get { return Path.Combine(Scraper.Location, Id.ToString() + ".json"); } }
+        public string Location
+        {
+            get
+            {
+                if (Scraper == null)
+                {
+                    System.Windows.Forms.MessageBox.Show("Parent rule is not found. It may be deleted.");
+
+                    return null;
+                };
+
+                return Path.Combine(Scraper.Location, Id.ToString() + ".json");
+            }
+        }
         [JsonIgnore]
         public string TextSingleLine { get { return Text?.Replace("\n", "").Trim(); } }
 

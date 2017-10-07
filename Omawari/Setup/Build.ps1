@@ -3,21 +3,23 @@ cd "$PSScriptRoot"
 # tools フォルダーを空にする
 remove-item ".\tools" -recurse -force
 
+new-item ".\tools" -ItemType "directory"
+
 # Release ビルドを tools フォルダーへコピー
-$source = "..\bin\Release" 
-robocopy $source .\tools /MIR
+# $source = "..\bin\Release" 
+#robocopy $source .\tools /MIR
 
 # 実行ファイルのシミングを防止
-$files = get-childitem ".\tools" -include *.exe -recurse
-foreach ($file in $files) {
+#$files = get-childitem ".\tools" -include *.exe -recurse
+#foreach ($file in $files) {
   #generate an ignore file
-  New-Item "$file.ignore" -type file -force | Out-Null
-}
+#  New-Item "$file.ignore" -type file -force | Out-Null
+#}
 
 # インストールスクリプトなどをコピー
 copy .\chocolateyinstall.ps1 .\tools\chocolateyinstall.ps1
-copy .\LICENSE.txt .\tools\LICENSE.txt
-copy .\VERIFICATION.txt .\tools\VERIFICATION.txt
+#copy .\LICENSE.txt .\tools\LICENSE.txt
+#copy .\VERIFICATION.txt .\tools\VERIFICATION.txt
 
 # .nuspec のバージョンを書き換え
 $version = (Get-ItemProperty ..\bin\Release\Omawari.exe).VersionInfo.FileVersion

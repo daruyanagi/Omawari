@@ -10,6 +10,11 @@
         Title="{Binding ViewModel.Title }" Height="600" Width="800">
     <Window.Resources>
 
+        <CollectionViewSource x:Key="Logs" Source="{Binding ViewModel.AllLogs}" 
+                              Filter="LogsCollectionViewSource_Filter" />
+        <CollectionViewSource x:Key="Rules" Source="{Binding ViewModel.Rules}" 
+                              Filter="RulesCollectionViewSource_Filter" />
+
         <collection:ArrayList x:Key="editMenu" x:Shared="False">
             <MenuItem Command="{Binding ViewModel.AddScraperCommand}">
                 <MenuItem.Header>
@@ -51,17 +56,36 @@
                         Check Selected
                     </TextBlock>
                 </MenuItem.Header>
-            </MenuItem><!--
-            <Separator /> 
-            <MenuItem Command="{Binding ViewModel.LogSelectedScraperCommand}">
-                <MenuItem.Header>
-                    <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE14C;" />
-                        Show Log
-                    </TextBlock>
-                </MenuItem.Header>
-            </MenuItem>-->
+            </MenuItem>
         </collection:ArrayList>
+
+        <DataTemplate x:Key="StatusCellTemplate">
+            <TextBlock>
+                <TextBlock.Text>
+                    <Binding Path="Status" />
+                </TextBlock.Text>
+                <TextBlock.Foreground>
+                    <Binding Path="Status" Converter="{StaticResource ScrapingStatusToBrushConverter}" />
+                </TextBlock.Foreground>
+            </TextBlock>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TargetUrlCellTemplate">
+            <TextBlock>
+                <Hyperlink>
+                    <Hyperlink.Style>
+                        <Style TargetType="Hyperlink">
+                            <EventSetter Event="RequestNavigate" Handler="Hyperlink_RequestNavigate"/>
+                        </Style>
+                    </Hyperlink.Style>
+                    <Hyperlink.NavigateUri>
+                        <Binding Path="Target" />
+                    </Hyperlink.NavigateUri>
+                    <Run Text="{Binding Target}" />
+                </Hyperlink>
+            </TextBlock>
+        </DataTemplate>
+        
     </Window.Resources>
     
     <Grid>
@@ -80,7 +104,7 @@
             <MenuItem Header="Tool" ItemsSource="{StaticResource ResourceKey=toolMenu}" />
             <MenuItem Header="Help" ItemsSource="{StaticResource ResourceKey=helpMenu}" />
         </Menu>
-<!--
+
         <ToolBarTray Grid.Row="1">
             <ToolBar>
                 <Button Command="{Binding ViewModel.StartCommand}">
@@ -128,13 +152,6 @@
                     </TextBlock>
                 </Button>
                 <Separator></Separator>
-                <Button Command="{Binding ViewModel.LogSelectedScraperCommand}">
-                    <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE14C;" />
-                        Show Log
-                    </TextBlock>
-                </Button>
-                <Separator></Separator>
                 <Button Command="{Binding ViewModel.SettingsCommand}">
                     <TextBlock>
                         <Run FontFamily="Segoe UI Symbol" Text="&#xE115;" />
@@ -142,7 +159,7 @@
                     </TextBlock>
                 </Button>
             </ToolBar>
-        </ToolBarTray>-->
+        </ToolBarTray>
 
         <Grid Grid.Row="2">
             <Grid.RowDefinitions>
@@ -150,124 +167,84 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <DockPanel Grid.Row="0" LastChildFill="False" Background="#FFEEF5FD">
-                <Label>
-                    <TextBlock>
+            <TabControl Grid.Row="1" Margin="4">
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock>
                         <Run FontFamily="Segoe MDL2 Assets" Text="&#xE774;" />
-                        Web Check Rules
-                    </TextBlock>
-                </Label>
-                <ToolBar DockPanel.Dock="Right">
-                    <Button Command="{Binding ViewModel.AddScraperCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE109;" />
-                        Add
+                            Web Check Rules
                         </TextBlock>
-                    </Button>
-                    <Button Command="{Binding ViewModel.EditScraperCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1C2;" />
-                        Edit / View Log
-                        </TextBlock>
-                    </Button>
-                    <Button Command="{Binding ViewModel.RemoveScraperCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE107;" />
-                        Remove
-                        </TextBlock>
-                    </Button>
-                    <Separator></Separator>
-                    <Button Command="{Binding ViewModel.CheckAllScraperCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CD;" />
-                        Check All
-                        </TextBlock>
-                    </Button>
-                    <Button Command="{Binding ViewModel.CheckSelectedScraperCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE1CC;" />
-                        Check Selected
-                        </TextBlock>
-                    </Button>
+                    </TabItem.Header>
 
-                </ToolBar>
-            </DockPanel>
-            
-            <ListView Grid.Row="1" 
-                      ItemsSource="{Binding ViewModel.Items}"
-                      SelectedItem="{Binding ViewModel.SelectedItem, Mode=TwoWay}"
-                      MouseDoubleClick="ListView_MouseDoubleClick">
-                
-                <ListView.ContextMenu>
-                    <ContextMenu ItemsSource="{StaticResource editMenu}" />
-                </ListView.ContextMenu>
-                
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="" Width="Auto" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <CheckBox IsChecked="{Binding IsEnabled}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                    <ListView x:Name="ruleListView" 
+                              Grid.Row="1" 
+                              ItemsSource="{Binding Source={StaticResource Rules}}"
+                              SelectedItem="{Binding ViewModel.SelectedItem, Mode=TwoWay}"
+                              MouseDoubleClick="ListView_MouseDoubleClick"
+                              GridViewColumnHeader.Click="ruleListView_Click">
 
-                        <GridViewColumn Header="Status" Width="Auto">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Status}"
-                                               Foreground="{Binding Status, Converter={StaticResource ScrapingStatusToBrushConverter}}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        
-                        <GridViewColumn Header="Name" Width="200" 
-                                        DisplayMemberBinding="{Binding Name}" />
-                        
-                        <GridViewColumn Header="Target" Width="100">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <Hyperlink NavigateUri="{Binding Target}" RequestNavigate="Hyperlink_RequestNavigate" >
-                                            <Run Text="{Binding Target}" />
-                                        </Hyperlink>
-                                    </TextBlock>   
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        
-                        <GridViewColumn Header="Selectors" Width="100" 
-                                        DisplayMemberBinding="{Binding Selectors}" />
-                        
-                        <GridViewColumn Header="Interval" Width="100" 
-                                        DisplayMemberBinding="{Binding Interval}" />
-                        
-                        <GridViewColumn Header="ID" Width="100" 
-                                        DisplayMemberBinding="{Binding Id}" />
+                        <ListView.ContextMenu>
+                            <ContextMenu ItemsSource="{StaticResource editMenu}" />
+                        </ListView.ContextMenu>
 
-                        <GridViewColumn Header="Last Result"  Width="100"
-                                        DisplayMemberBinding="{Binding LastResult.Status}" />
-                        <!--
-                        <GridViewColumn Header="Started At" Width="Auto"
-                                        DisplayMemberBinding="{Binding LastResult.StartedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
-                        -->
-                        <GridViewColumn Header="Last Checked" Width="Auto"
-                                        DisplayMemberBinding="{Binding LastResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
-                        <!--
-                        <GridViewColumn Header="Elapsed" Width="100"
-                                        DisplayMemberBinding="{Binding LastResult.Duration, Converter={StaticResource TimeSpanToEasyReadStringConverter}}" />
-                        -->
-                        <GridViewColumn Header="Last Updated"  Width="Auto"
-                                        DisplayMemberBinding="{Binding LastUpdateResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
-                        
-                        <GridViewColumn Header="Last OuterHTML"  Width="100" 
-                                        DisplayMemberBinding="{Binding LastUpdateResult.TextSingleLine}"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="" Width="Auto" >
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsEnabled}" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <GridViewColumn Header="Status" Width="100" 
+                                                CellTemplate="{StaticResource StatusCellTemplate}"/>
+
+                                <GridViewColumn Header="Name" Width="200" 
+                                                DisplayMemberBinding="{Binding Name}" />
+
+                                <GridViewColumn Header="Target" Width="100"
+                                                CellTemplate="{StaticResource TargetUrlCellTemplate}"/>
+
+                                <GridViewColumn Header="Selectors" Width="100" 
+                                                DisplayMemberBinding="{Binding Selectors}" />
+
+                                <GridViewColumn Header="Interval" Width="100" 
+                                                DisplayMemberBinding="{Binding Interval}" />
+
+                                <GridViewColumn Header="ID" Width="100" 
+                                                DisplayMemberBinding="{Binding Id}" />
+
+                                <GridViewColumn Header="Last Result"  Width="100"
+                                                DisplayMemberBinding="{Binding LastResult.Status}" />
+
+                                <GridViewColumn Header="Last Checked" Width="Auto"
+                                                DisplayMemberBinding="{Binding LastResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+
+                                <GridViewColumn Header="Last Updated"  Width="Auto"
+                                                DisplayMemberBinding="{Binding LastUpdateResult.CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+
+                                <GridViewColumn Header="Last OuterHTML"  Width="100" 
+                                                DisplayMemberBinding="{Binding LastUpdateResult.TextSingleLine}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </TabItem>
+            </TabControl>
+
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Right">
+                <TextBlock VerticalAlignment="Center">Filter: </TextBlock>
+                <TextBox x:Name="filterTextBox" Margin="4" MinWidth="200"
+                         TextChanged="filterTextBox_TextChanged"/>
+            </StackPanel>
         </Grid>
 
-        <GridSplitter Grid.Row="3" Height="5" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+        <GridSplitter Grid.Row="3" Height="5" 
+                      Background="White"
+                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
 
         <Grid Grid.Row="4">
             <Grid.RowDefinitions>
@@ -275,56 +252,69 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <DockPanel Grid.Row="0" LastChildFill="False" Background="#FFEEF5FD">
-                <Label Margin="0">
-                    <TextBlock><Run FontFamily="Segoe MDL2 Assets" Text="&#xE81C;" /> Update Logs</TextBlock>
-                </Label>
-                <ToolBar DockPanel.Dock="Right">
-                    <ToolBar.Header>
+            <TabControl Grid.Row="1" Margin="4">
+                <TabItem>
+                    <TabItem.Header>
                         <TextBlock>
-                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE916;" />
-                            Web Cheker
+                            <Run FontFamily="Segoe MDL2 Assets" Text="&#xE81C;" />
+                            Check Log
                         </TextBlock>
-                    </ToolBar.Header>
-                    <Button Command="{Binding ViewModel.StartCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE102;" />
-                        Start
-                        </TextBlock>
-                    </Button>
-                    <Button Command="{Binding ViewModel.StopCommand}">
-                        <TextBlock>
-                        <Run FontFamily="Segoe UI Symbol" Text="&#xE103;" />
-                        Pause
-                        </TextBlock>
-                    </Button>
-                </ToolBar>
-            </DockPanel>
+                    </TabItem.Header>
+                    <ListView x:Name="listViewLogs" 
+                              ItemsSource="{Binding Source={StaticResource Logs}}"
+                              MouseDoubleClick="listViewLog_MouseDoubleClick">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Status" 
+                                                Width="100" 
+                                                CellTemplate="{StaticResource StatusCellTemplate}" />
+                                <GridViewColumn Header="Updated" 
+                                                Width="Auto" 
+                                                DisplayMemberBinding="{Binding CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
+                                <GridViewColumn Header="Name" 
+                                                Width="200"  
+                                                DisplayMemberBinding="{Binding Scraper.Name}" />
+                                <GridViewColumn Header="URL" 
+                                                Width="200" 
+                                                CellTemplate="{StaticResource TargetUrlCellTemplate}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </TabItem>
+            </TabControl>
 
-            <ListView Grid.Row="1" x:Name="listViewLog" 
-                      
-                      ItemsSource="{Binding ViewModel.UpdateLog}"
-                      MouseDoubleClick="listViewLog_MouseDoubleClick">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="Updated" Width="Auto"
-                                        DisplayMemberBinding="{Binding CompletedAt, Converter={StaticResource UtcToLocalTimeStringConverter}}" />
-                        <GridViewColumn Header="Name" Width="Auto"
-                                        DisplayMemberBinding="{Binding Scraper.Name}" />
-                        <GridViewColumn Header="URL">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock>
-                                        <Hyperlink NavigateUri="{Binding Target}" RequestNavigate="Hyperlink_RequestNavigate" >
-                                            <Run Text="{Binding Target}" />
-                                        </Hyperlink>
-                                    </TextBlock>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Right">
+                <ToggleButton x:Name="updatesToggleButton" IsChecked="True"
+                              Margin="4, 0" Padding="2" Width="72" Background="White" BorderThickness="0" Foreground="Orange"
+                              Checked="ToggleButton_Checked"
+                              Unchecked="ToggleButton_Checked">
+                    <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xE783;" />
+                        Update
+                    </TextBlock>
+                </ToggleButton>
+                <ToggleButton x:Name="errorsToggleButton"
+                              Margin="4, 0" Padding="2" Width="72" Background="White" BorderThickness="0" Foreground="Red"
+                              Checked="ToggleButton_Checked"
+                              Unchecked="ToggleButton_Checked">
+                    <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xEA39;" />
+                        Errors
+                    </TextBlock>
+                </ToggleButton>
+                <ToggleButton x:Name="othersToggleButton"
+                              Margin="4, 0" Padding="2" MinWidth="72" Background="White" BorderThickness="0" Foreground="Green"
+                              Checked="ToggleButton_Checked"
+                              Unchecked="ToggleButton_Checked">
+                    <TextBlock>
+                        <Run FontFamily="Segoe MDL2 Assets" Text="&#xE292;" />
+                        Others
+                    </TextBlock>
+                </ToggleButton>
+            </StackPanel>
         </Grid>
         
         <StatusBar Grid.Row="5">

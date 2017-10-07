@@ -5,8 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Omawari.Views"
         mc:Ignorable="d"
-        Title="Create new rule" Height="300" Width="400"
-        WindowStartupLocation="CenterOwner">
+        Title="Create new rule" Height="300" Width="400">
     <Grid Margin="8">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
